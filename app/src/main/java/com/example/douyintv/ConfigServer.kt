@@ -109,19 +109,47 @@ class ConfigServer(
 
     // ---------------- 手机遥控：配对 / 命令 / 列表 / 热搜 ----------------
 
+    // ---- 配对失败限速（防暴力破解） ----
+    @Volatile
+    private var pairFails = 0
+
+    @Volatile
+    private var pairLockedUntil = 0L
+
+    /**
+     * 配对：需 6 位码。
+     *
+     * ★ 安全修复：
+     *   1. 原来响应里回显 `"code": 配对码` —— 局域网任何人调一次 /pair 就能拿到码，
+     *      配对机制形同虚设。现在**绝不回显配对码**。
+     *   2. 增加失败限速：连续 5 次失败 → 锁定 60 秒**并作废旧码重新生成**（防止 6 位码被爆破）。
+     */
     private fun pair(session: IHTTPSession): Response {
+        val now = System.currentTimeMillis()
+        if (now < pairLockedUntil) {
+            return newFixedLengthResponse(
+                Response.Status.OK, "application/json; charset=utf-8",
+                """{"ok":false,"error":"too_many_attempts","retryAfterMs":${pairLockedUntil - now}}""")
+        }
         val p = session.parameters
-        val code = p["code"]?.firstOrNull() ?: ""
+        val code = (p["code"]?.firstOrNull() ?: "").trim()
         val ok = code.isNotBlank() && code == Prefs.getPairCode()
-        // ★ 配对成功 → 手机 client_uuid 进白名单（长期授权，之后不用再输码）
         if (ok) {
+            pairFails = 0
             val cu = p["client_uuid"]?.firstOrNull() ?: ""
             val name = p["name"]?.firstOrNull() ?: "手机"
             if (cu.isNotBlank()) Prefs.addAllowedClient(appCtx, cu, name)
+        } else {
+            pairFails++
+            if (pairFails >= 5) {
+                pairFails = 0
+                pairLockedUntil = now + 60_000
+                try { Prefs.regeneratePairCode(appCtx) } catch (_: Throwable) {}   // 旧码作废
+            }
         }
         return newFixedLengthResponse(
             Response.Status.OK, "application/json; charset=utf-8",
-            """{"ok":$ok,"code":"${Prefs.getPairCode()}","uuid":"${Prefs.getTvUuid()}"}""")
+            """{"ok":$ok,"uuid":"${Prefs.getTvUuid()}"}""")
     }
 
     /** 握手鉴权：?uuid=<client_uuid> 在白名单即放行（WS 连接前先用它验证） */
@@ -274,6 +302,23 @@ class ConfigServer(
                     arg.trim().toLongOrNull()?.let { PlayerBus.send("seek", it.toString()) }
                     newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "ok")
                 }
+                // ★ 外部唤醒入口：此前更新等功能只有启动时静默检查，没有外部可调用入口
+                "checkupdate" -> {
+                    startUpdateCheck(interactive = true)
+                    newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "ok")
+                }
+                "upgrade" -> {
+                    startUpdateCheck(interactive = false)
+                    newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "ok")
+                }
+                "settings" -> { openActivity(SettingsActivity::class.java); okResp() }
+                "about" -> { openActivity(AboutActivity::class.java); okResp() }
+                "home" -> { openActivity(MainActivity::class.java); okResp() }
+                "exit" -> {
+                    App.currentActivity()?.let { a -> a.runOnUiThread { try { a.finish() } catch (_: Throwable) {} } }
+                    okResp()
+                }
+                "reload" -> { PlayerBus.send("reload", arg); okResp() }
                 "search" -> {
                     // ★ 手机遥控传的是 arg（不是 kw）：直接推搜索词并拉起搜索页
                     if (arg.isBlank()) newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "关键词为空")
@@ -313,6 +358,7 @@ class ConfigServer(
 
     /** 手机端历史 / 收藏列表（json；点条目 → push 到电视播放） */
     private fun lists(session: IHTTPSession): Response {
+        if (!authed(session)) return newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "未授权（配对码错误或不在白名单）")
         val code = session.parameters["code"]?.firstOrNull() ?: ""
         if (code != Prefs.getPairCode()) return newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "配对码错误")
         val type = session.parameters["type"]?.firstOrNull() ?: "history"
@@ -332,6 +378,7 @@ class ConfigServer(
     }
 
     private fun hot(session: IHTTPSession): Response {
+        if (!authed(session)) return newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "未授权（配对码错误或不在白名单）")
         val code = session.parameters["code"]?.firstOrNull() ?: ""
         if (code != Prefs.getPairCode()) return newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "配对码错误")
         val words = DouyinApi.fetchHotSearch() ?: emptyList()
@@ -347,6 +394,72 @@ class ConfigServer(
         return newFixedLengthResponse(
             Response.Status.OK, "text/plain; charset=utf-8",
             if (ok) "ok" else "no-foreground")
+    }
+
+    private fun okResp(): Response =
+        newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "ok")
+
+    /** 外部唤醒：打开指定页面 */
+    private fun openActivity(cls: Class<*>) {
+        try {
+            val i = Intent(appCtx, cls)
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            appCtx.startActivity(i)
+        } catch (e: Exception) {
+            Log.e(TAG, "打开页面失败: ${e.message}")
+        }
+    }
+
+    private fun uiToast(msg: String) {
+        val a = App.currentActivity() ?: return
+        a.runOnUiThread {
+            try {
+                android.widget.Toast.makeText(a, msg, android.widget.Toast.LENGTH_SHORT).show()
+            } catch (_: Throwable) {}
+        }
+    }
+
+    /**
+     * 外部唤醒：检查/执行更新。
+     * interactive=true → 有新版弹窗（可点立即升级）；false → 直接下载并调起安装器。
+     * 此前更新只有「启动 3 秒静默检查」，无法从外部触发。
+     */
+    private fun startUpdateCheck(interactive: Boolean) {
+        Thread {
+            val info = try { UpdateChecker.check(appCtx) } catch (_: Throwable) { null }
+            if (info == null) {
+                if (interactive) uiToast("已是最新版本")
+                return@Thread
+            }
+            if (!interactive) {
+                val f = UpdateChecker.download(appCtx, info.apkUrl) { }
+                if (f != null) UpdateChecker.install(appCtx) else uiToast("更新下载失败")
+                return@Thread
+            }
+            val act = App.currentActivity()
+            if (act == null) {
+                // 没有前台界面（如在播放页直接调用）→ 退化为直接下载安装
+                val f = UpdateChecker.download(appCtx, info.apkUrl) { }
+                if (f != null) UpdateChecker.install(appCtx)
+                return@Thread
+            }
+            act.runOnUiThread {
+                try {
+                    android.app.AlertDialog.Builder(act)
+                        .setTitle("发现新版本 ${info.versionName}")
+                        .setMessage(info.notes.ifBlank { "（无更新说明）" })
+                        .setPositiveButton("立即升级") { _, _ ->
+                            uiToast("开始下载更新…")
+                            Thread {
+                                val f = UpdateChecker.download(appCtx, info.apkUrl) { }
+                                if (f != null) UpdateChecker.install(appCtx) else uiToast("更新下载失败")
+                            }.start()
+                        }
+                        .setNegativeButton("稍后", null)
+                        .show()
+                } catch (_: Throwable) {}
+            }
+        }.start()
     }
 
     private fun status(session: IHTTPSession): Response {
@@ -432,6 +545,7 @@ class ConfigServer(
      * 文本格式：每行 key=value 或 key:value（可在浏览器控制台粘贴 localStorage 导出）。
      */
     private fun saveCreds(session: IHTTPSession): Response {
+        if (!authed(session)) return newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "未授权（配对码错误或不在白名单）")
         return try {
             val files = HashMap<String, String>()
             session.parseBody(files)
@@ -452,6 +566,7 @@ class ConfigServer(
     }
 
     private fun save(session: IHTTPSession): Response {
+        if (!authed(session)) return newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "未授权（配对码错误或不在白名单）")
         return try {
             val files = HashMap<String, String>()
             session.parseBody(files)

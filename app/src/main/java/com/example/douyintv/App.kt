@@ -189,6 +189,12 @@ class App : MultiDexApplication() {
             return actRef?.get() != null
         }
 
+        /** 当前前台 Activity（外部唤醒需要弹窗/提示时用；可能为 null） */
+        fun currentActivity(): android.app.Activity? {
+            ensureTracking()
+            return actRef?.get()
+        }
+
         /** 横屏过滤开关 —— 解析层调用入口 */
         fun landscapeOnly(): Boolean {
             val c = appCtx ?: return false

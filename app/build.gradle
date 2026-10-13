@@ -11,10 +11,10 @@ android {
         applicationId 'com.example.douyintv'
         minSdk 17
         targetSdk 26
-        versionCode 118            // ★ 版本号规则（用户定）：对外显示十进制小进位 —— 1.99 → 2.00 → 2.01 …
+        versionCode 119            // ★ 版本号规则（用户定）：对外显示十进制小进位 —— 1.99 → 2.00 → 2.01 …
             //   versionCode 只保证单调递增（Android 升级判断），与显示名不必一一对应。
             //   例：code 99 → "1.99"，code 100 → "2.00"，code 101 → "2.01"。
-            versionName "2.18"
+            versionName "2.19"
 
         // ★ 只打 32 位原生库（体积优化）★
         //   目标机是 Cortex-A7 + Android 4.2 —— 32 位 ARM。
