@@ -105,6 +105,11 @@ class WSServer(private val appCtx: Context) : Thread("DTV-WS") {
                     arg.trim().toLongOrNull()?.let { PlayerBus.send("seek", it.toString()) }
                     """{"ok":true}"""
                 }
+                // ★ 外部唤醒（与 HTTP /cmd 语义一致）：更新 / 页面 / 退出 / 重载
+                "checkupdate", "upgrade", "settings", "about", "home", "exit", "reload" -> {
+                    ExternalActions.handle(appCtx, cmd, arg)
+                    """{"ok":true}"""
+                }
                 "search" -> {
                     if (arg.isNotBlank()) {
                         SearchBus.push(arg)
