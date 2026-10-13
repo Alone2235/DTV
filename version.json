@@ -1,7 +1,7 @@
 {
-    "versionCode":  117,
-    "versionName":  "2.17",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.17/Dtv-2.17-debug.apk",
-    "notes":  "1. 项目开源（MIT）+ README + GitHub Actions 自动打包\n2. 在线更新：启动静默检查 version.json，有新版提示并一键下载安装\n3. 一键发布脚本 tools/publish.ps1\n4. 手机遥控底层（UDP发现/配对白名单/WebSocket/倍速/APK无线分发）\n5. 弹幕支持 + 播放黑屏自动重载修复",
+    "versionCode":  118,
+    "versionName":  "2.18",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.18/Dtv-2.18-debug.apk",
+    "notes":  "1. 补齐遥控器缺口：方向键/OK/返回/菜单（手机可操作电视界面，此前只能控制播放）\n2. 新增 seekto 精确跳转进度\n3. 项目开源 + README + GitHub Actions 双端自动打包\n4. 在线更新：启动静默检查 version.json，一键下载安装\n5. 手机遥控底层 + 弹幕 + 黑屏自动重载修复",
     "force":  false
 }

@@ -4,6 +4,16 @@
 > 每版留档：源码备份在 _BACKUP_Dtv_v<版本>，APK 留档在 artifacts/apk/TVDouyinNative/。
 > 版本号规则：十进制小进位（1.99 → 2.00 → 2.01）；versionCode 单调递增（Android 升级判断）。
 
+## 2.18（2026-10-13）补齐遥控器缺口：方向键 / OK / 返回 / 菜单
+
+**手机遥控 → 电视界面操作（此前只能操控播放）**
+- 电视端新增按键注入：App.sendKey() 跟踪前台 Activity 并注入 KeyEvent（DOWN+UP）
+- 新增指令（WebSocket 8090 与 HTTP /cmd 双通道同语义）：
+  dpad_up / dpad_down / dpad_left / dpad_right / ok / ack / menu / key(任意 keycode)
+- 新增 seekto（arg=毫秒）：精确跳转进度，替代只能 ±10s 的 seek
+- 无前台界面时返回 
+o-foreground，遥控端可据此提示
+
 ## 2.17（2026-10-13）开源 + 在线更新渠道
 
 **开源与发布基建**
