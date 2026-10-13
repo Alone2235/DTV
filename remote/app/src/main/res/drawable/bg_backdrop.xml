@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  液态玻璃底衬（关键！）
+  玻璃只能折射「背后真实存在的东西」——背后若是平滑纯色渐变，折射肉眼看不出。
+  这里用多层错位的光斑造出【有边缘、有明暗对比】的结构，
+  玻璃压上去才会出现真实的扭曲与彩色色散边。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 基底 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#0B0B0F" />
+        </shape>
+    </item>
+    <!-- 左上：品牌红大光斑 -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.18"
+                android:centerY="0.12"
+                android:gradientRadius="300dp"
+                android:startColor="#8CFE2C55"
+                android:centerColor="#38FE2C55"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+    <!-- 右下：冷紫蓝光斑（与暖色形成色相冲突，色散更明显） -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.86"
+                android:centerY="0.9"
+                android:gradientRadius="320dp"
+                android:startColor="#7A5B4BFF"
+                android:centerColor="#2E4B3BFF"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+    <!-- 中部偏下：青绿小光斑（点缀，制造高频边缘） -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.62"
+                android:centerY="0.46"
+                android:gradientRadius="180dp"
+                android:startColor="#4A00D6A0"
+                android:centerColor="#1800D6A0"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

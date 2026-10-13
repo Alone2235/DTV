@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  极简深色底（方案：让玻璃自己说话）
+  · 深蓝黑基底，不做明显彩色渐变 → 最不容易脏
+  · 只保留底部一层很淡的品牌色径向光（给玻璃一点可折射的暖色）
+  · 玻璃的高光/边缘由玻璃自身渲染，不靠背景堆色
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#0A0B0F" />
+        </shape>
+    </item>
+    <!-- 底部淡径向光（很克制） -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.5"
+                android:centerY="1.05"
+                android:gradientRadius="420dp"
+                android:startColor="#22FE2C55"
+                android:centerColor="#0AFE2C55"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>
