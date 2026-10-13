@@ -1,0 +1,56 @@
+name: Android Build
+
+# 触发条件：
+#   · push 到 main        → 编译 + 上传 APK 为 Artifact
+#   · push tag v*         → 编译 + 自动创建 Release 并附上 APK
+#   · 手动触发            → Actions 页面点 Run workflow
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write        # 发 Release 需要写权限
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        # 注意：不要加 --offline（CI 需要联网拉依赖）；
+        #       JVM 参数由 gradle.properties 控制，CI 上可放宽内存
+        env:
+          GRADLE_OPTS: "-Xmx2048m -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8"
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DTV-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Publish Release (仅 tag v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/debug/*.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: false

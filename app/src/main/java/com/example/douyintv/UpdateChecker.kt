@@ -31,8 +31,10 @@ object UpdateChecker {
 
     private const val TAG = "Update"
 
-    /** 默认清单地址（发布前替换成你的仓库；也可在 Prefs 里覆盖） */
-    const val DEFAULT_MANIFEST = "https://raw.githubusercontent.com/CHANGE_ME/DTV/main/version.json"
+    /** 版本清单地址（GitHub 仓库 Alone2235/DTV，raw 直读；国内可用 jsDelivr 镜像） */
+    const val DEFAULT_MANIFEST = "https://raw.githubusercontent.com/Alone2235/DTV/main/version.json"
+    /** jsDelivr 镜像（raw 被墙时备用，Prefs 可切换） */
+    const val CDN_MANIFEST = "https://cdn.jsdelivr.net/gh/Alone2235/DTV@main/version.json"
 
     data class Info(
         val versionCode: Int,

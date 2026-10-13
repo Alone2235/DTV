@@ -4,6 +4,25 @@
 > 每版留档：源码备份在 _BACKUP_Dtv_v<版本>，APK 留档在 artifacts/apk/TVDouyinNative/。
 > 版本号规则：十进制小进位（1.99 → 2.00 → 2.01）；versionCode 单调递增（Android 升级判断）。
 
+## 2.17（2026-10-13）开源 + 在线更新渠道
+
+**开源与发布基建**
+- 项目开源至 GitHub：<https://github.com/Alone2235/DTV>（MIT）
+- 新增 `README.md`：功能、编译方式、目录结构、更新机制说明
+- 新增 GitHub Actions 工作流 `.github/workflows/android-build.yml`：push 编译出包、**推 tag 自动发 Release 附 APK**
+- 新增一键发布脚本 `tools/publish.ps1`：升版本 → 编译 → 上传代码 → 更新清单 → 发 Release + 传 APK
+- `version.json` 在线更新清单（仓库根目录）
+
+**在线更新（App 内）**
+- 新增 `UpdateChecker.kt`：启动 3 秒后静默拉取 `version.json` → 比对 `versionCode` → 有新版本弹窗（版本号 + 更新说明）
+- 下载 APK 到 `filesDir/update.apk`（带进度）→ 走 FileProvider 调起系统安装器
+- 清单地址支持覆盖（`Prefs.setUpdateUrl`），内置 jsDelivr 镜像常量备用
+- 未配置仓库地址时静默跳过，不影响启动
+
+**2.16 已并入**
+- 手机遥控底层：UDP 发现（8089）/ HTTP 配置升级（8088）/ WebSocket 控制（8090）/ 配对码白名单
+- 弹幕支持；播放黑屏自动重载修复；倍速、线路、循环等遥控指令对齐
+
 ## 2.13（2026-10-12）UI/动效大改版 · 第 1 步：统一动效系统
 
 **动效系统（FocusAnim）**
