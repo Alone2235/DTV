@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  热搜榜（独立页面）
+  ==================
+  从首页左侧导航「热搜」进入。与搜索页彻底分开：
+  这里只看榜、点词跳搜索；搜索页里不再出现热搜榜。
+
+  热搜接口匿名可用（不要 Cookie、不要签名），所以未登录也能出内容。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_root"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/tv_content_padding"
+    android:paddingRight="@dimen/tv_content_padding"
+    android:paddingTop="@dimen/space_l"
+    android:paddingBottom="@dimen/space_m">
+
+    <!-- 顶栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="热搜榜"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/tv_section_title_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/space_m"
+            android:textColor="@color/text_tertiary"
+            android:textSize="@dimen/text_caption" />
+    </LinearLayout>
+
+    <!-- 榜单 + 占位 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/space_m"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/hotRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/space_l"
+            android:scrollbars="none" />
+
+        <LinearLayout
+            android:id="@+id/placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/pbLoading"
+                android:layout_width="@dimen/tv_placeholder_icon"
+                android:layout_height="@dimen/tv_placeholder_icon"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvPlaceholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:gravity="center"
+                android:lineSpacingExtra="6dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/tv_placeholder_text" />
+
+            <TextView
+                android:id="@+id/btnRetry"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:layout_marginTop="@dimen/tv_placeholder_btn_gap"
+                android:background="@drawable/focus_chip"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:minWidth="@dimen/tv_btn_min_width"
+                android:paddingLeft="@dimen/tv_btn_padding_h"
+                android:paddingRight="@dimen/tv_btn_padding_h"
+                android:text="重试"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size"
+                android:visibility="gone" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

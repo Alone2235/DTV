@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 列表项：两行文本（第一行标题/作者，第二行副文本） -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/space_l"
+    android:paddingRight="@dimen/space_l"
+    android:paddingTop="@dimen/space_m"
+    android:paddingBottom="@dimen/space_m">
+
+    <TextView
+        android:id="@+id/itemTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_subtitle"
+        android:lineSpacingExtra="3dp" />
+
+    <TextView
+        android:id="@+id/itemSub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@color/text_tertiary"
+        android:textSize="@dimen/text_body" />
+
+</LinearLayout>

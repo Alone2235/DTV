@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  封面占位图（硬性规则 4②：所有图片必须配置占位图、加载失败兜底图，防止空白黑屏）
+  ==============================================================================
+  用 shape 画的"胶片感"底纹：深灰底 + 一条浅色斜带。
+  Android 4.2 不支持 <vector>，所以这里全程用 shape / layer-list 实现，
+  不依赖任何图片资源，也就没有"占位图本身加载不出来"的风险。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 底层：深灰渐变，避免纯黑看起来像"坏了" -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="12dp" />
+            <gradient
+                android:angle="270"
+                android:startColor="#FF23232B"
+                android:centerColor="#FF1A1A20"
+                android:endColor="#FF131318"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- 中层：一条居中浅色斜带，暗示"这里本来有图" -->
+    <item
+        android:left="18dp"
+        android:right="18dp"
+        android:top="52dp"
+        android:bottom="52dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="4dp" />
+            <solid android:color="#14FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- 顶层：细描边，让占位块和纯黑背景区分开 -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="12dp" />
+            <stroke android:width="1dp" android:color="#22FFFFFF" />
+        </shape>
+    </item>
+
+</layer-list>

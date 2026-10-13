@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  接口自检页
+  ==========
+  目的：用设备上【已保存的 Cookie】去实测各候选接口，把真实结果
+        （HTTP 码 / status_code / 拿到几条）直接显示在屏幕上。
+
+  为什么需要这个页：
+    分类要 tag_id、搜索要正确的 endpoint + 参数，这些值我不能凭空编 ——
+    编错了你点开就是"没反应"，比现在更糟。
+    跑一次自检，结果念给我，我按实测值接线。
+
+  规则落地：
+    ③ 日志用 RecyclerView，条目不可聚焦、焦点留在容器上 → ↑↓ 滚动日志
+    ④ 进页默认焦点给 RecyclerView
+    6  有"正在自检"占位与重试按钮
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_root"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_nav"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/space_l"
+        android:paddingRight="@dimen/space_l"
+        android:paddingTop="@dimen/space_m"
+        android:paddingBottom="@dimen/space_m">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="接口自检 · 分类 / 搜索"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/tv_text_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnRerun"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/tv_nav_item_height"
+            android:background="@drawable/focus_nav_item"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center"
+            android:minWidth="110dp"
+            android:paddingLeft="@dimen/space_l"
+            android:paddingRight="@dimen/space_l"
+            android:text="重新自检"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:descendantFocusability="afterDescendants"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:paddingTop="@dimen/space_s"
+            android:paddingBottom="@dimen/space_s"
+            android:scrollbars="vertical" />
+
+        <LinearLayout
+            android:id="@+id/placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/tv_content_padding"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/pbLoading"
+                android:layout_width="@dimen/tv_placeholder_icon"
+                android:layout_height="@dimen/tv_placeholder_icon" />
+
+            <TextView
+                android:id="@+id/tvPlaceholder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:gravity="center"
+                android:lineSpacingExtra="6dp"
+                android:text="正在自检…"
+                android:textColor="@color/text_tertiary"
+                android:textSize="@dimen/tv_placeholder_text" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_nav"
+        android:gravity="center"
+        android:padding="@dimen/space_s"
+        android:textColor="@color/accent_warn"
+        android:textSize="@dimen/tv_text_small" />
+
+</LinearLayout>

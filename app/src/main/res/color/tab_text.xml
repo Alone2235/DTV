@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tab 文字态：选中=白（实底），常态=次白 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true" android:color="@color/text_primary" />
+    <item android:state_selected="true" android:color="@color/text_on_brand" />
+    <item android:color="@color/text_secondary" />
+</selector>

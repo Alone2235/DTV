@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 小按钮：圆角 + chip 底色（iOS 圆润按钮） -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/bg_chip" />
+    <corners android:radius="@dimen/radius_m" />
+</shape>

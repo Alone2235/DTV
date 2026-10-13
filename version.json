@@ -1,0 +1,8 @@
+{
+  "_说明": "DTV 在线更新清单：App 启动后拉本文件，比对 versionCode，有新版即提示升级。发布新版时改这里 + 传 APK 到 Release。",
+  "versionCode": 116,
+  "versionName": "2.16",
+  "apkUrl": "https://github.com/CHANGE_ME/DTV/releases/download/v2.16/Dtv-2.16-release.apk",
+  "notes": "1. 手机遥控底层（UDP 发现 / 白名单 / WebSocket / 倍速 / APK 分发）\n2. 弹幕\n3. 播放黑屏自动重载修复",
+  "force": false
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 导航项：选中=brank 色块；聚焦=白描边；常态=透明 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/bg_surface_hi" />
+            <corners android:radius="@dimen/radius_m" />
+            <stroke android:width="@dimen/focus_stroke_width" android:color="@color/focus_stroke" />
+        </shape>
+    </item>
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <!-- 淡品牌胶囊（iOS 侧边栏 tab 风格：浅色胶囊 + 白字） -->
+            <solid android:color="@color/brand_tint" />
+            <corners android:radius="@dimen/radius_m" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+</selector>

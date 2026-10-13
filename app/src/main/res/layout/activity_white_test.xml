@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  黑方块诊断页（纯 View 版）
+  =========================
+  ★ 本页【禁止任何 SurfaceView】★ —— 纯普通 View 渲染。
+  这样设计的目的：如果白底上仍出现黑斑，唯一可能来源就是
+  系统本身（SurfaceFlinger / GPU 合成 / ROM 缺陷），与我们应用无关。
+
+  （之前这页带了一个 340x200 的 SurfaceView 测试层，那等于在纯白检测
+   里掺入了"我们自己创建 Surface"这个变量 —— 违背了检测的纯粹性，
+   已移除。这是用户的明确要求，也确实是当初设计失误。）
+
+  观察方法：
+    · 进入后整屏纯白（#FFFFFFFF，无半透明无渐变）
+    · 有黑斑 → 系统层；干净 → 播放器层
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFFFF">
+
+    <!-- 纯白观察区：铺满全屏，上方不叠任何半透明控件 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFFFF" />
+
+    <!-- 说明与操作条：黑色底，保证不干扰观察区的纯度 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/bg_nav"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="黑方块来源诊断"
+            android:textColor="@color/accent_warn"
+            android:textSize="@dimen/tv_text_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:lineSpacingExtra="4dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/tv_text_body" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnWhite"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:background="@drawable/btn_tv_primary"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:minWidth="@dimen/tv_btn_min_width"
+                android:paddingLeft="@dimen/tv_btn_padding_h"
+                android:paddingRight="@dimen/tv_btn_padding_h"
+                android:text="纯白"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+            <TextView
+                android:id="@+id/btnGray"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:layout_marginLeft="14dp"
+                android:background="@drawable/btn_tv_secondary"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:minWidth="@dimen/tv_btn_min_width"
+                android:paddingLeft="@dimen/tv_btn_padding_h"
+                android:paddingRight="@dimen/tv_btn_padding_h"
+                android:text="中灰"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/btnExit"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:background="@drawable/btn_tv_secondary"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:minWidth="@dimen/tv_btn_min_width"
+                android:paddingLeft="@dimen/tv_btn_padding_h"
+                android:paddingRight="@dimen/tv_btn_padding_h"
+                android:text="退出"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

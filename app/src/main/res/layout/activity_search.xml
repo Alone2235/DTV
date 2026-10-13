@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  搜索页（三段式，参照云视听/奇异果的搜索布局）
+  ============================================
+  ① 左栏：输入框（+ 清空/退格）+ 字母数字键盘（6 列）
+  ② 中栏：猜你想搜（实时联想，点一下直接搜）
+  ③ 右栏：结果列表（海报 + 标题 + 元信息，横向卡片）
+
+  键盘为什么是 6 列字母+数字：照参考图，一行六个、遥控器上下左右都好按；
+  数字键留着搜「2024」这类词。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_root"
+    android:orientation="horizontal"
+    android:padding="@dimen/tv_content_padding">
+
+    <!-- ==================== ① 左栏：输入 + 键盘 ==================== -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- 输入框 + 清空 / 退格 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/etKeyword"
+                android:layout_width="196dp"
+                android:layout_height="44dp"
+                android:background="@drawable/focus_card"
+                android:focusable="false"
+                android:hint="拼音即可"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:paddingLeft="@dimen/space_m"
+                android:paddingRight="@dimen/space_m"
+                android:singleLine="true"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_tertiary"
+                android:textSize="@dimen/text_body" />
+
+            <TextView
+                android:id="@+id/btnClear"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginLeft="@dimen/space_s"
+                android:background="@drawable/focus_chip"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:minWidth="60dp"
+                android:paddingLeft="@dimen/space_s"
+                android:paddingRight="@dimen/space_s"
+                android:text="清空"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/text_caption" />
+
+            <TextView
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginLeft="@dimen/space_s"
+                android:background="@drawable/focus_chip"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:minWidth="60dp"
+                android:paddingLeft="@dimen/space_s"
+                android:paddingRight="@dimen/space_s"
+                android:text="退格"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/text_caption" />
+        </LinearLayout>
+
+        <!-- 键盘（代码填 6 列） -->
+        <LinearLayout
+            android:id="@+id/keyboardBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:orientation="vertical" />
+
+        <!-- 手机输入（电视上打不了字时的主路径） -->
+        <TextView
+            android:id="@+id/tvPhoneHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:lineSpacingExtra="4dp"
+            android:textColor="@color/text_tertiary"
+            android:textSize="@dimen/text_micro" />
+    </LinearLayout>
+
+    <!-- ==================== ② 右栏：联想 + 结果（两段式，联想不占独立栏） ==================== -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/space_l"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- 联想词条：搜索前显示在结果区顶部，搜到结果后自动收起 -->
+        <LinearLayout
+            android:id="@+id/sugBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvSugTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="猜你想搜"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_caption" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/sugRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:clipToPadding="false"
+                android:scrollbars="none" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_s"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="搜索结果"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/tv_section_title_size"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_tertiary"
+                android:textSize="@dimen/text_caption" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/space_s"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/resultRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:scrollbars="none" />
+
+            <LinearLayout
+                android:id="@+id/placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/pbLoading"
+                    android:layout_width="@dimen/tv_placeholder_icon"
+                    android:layout_height="@dimen/tv_placeholder_icon"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvPlaceholder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_m"
+                    android:gravity="center"
+                    android:lineSpacingExtra="6dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/tv_placeholder_text" />
+
+                <TextView
+                    android:id="@+id/btnRetry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/tv_btn_height"
+                    android:layout_marginTop="@dimen/tv_placeholder_btn_gap"
+                    android:background="@drawable/focus_chip"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center"
+                    android:minWidth="@dimen/tv_btn_min_width"
+                    android:paddingLeft="@dimen/tv_btn_padding_h"
+                    android:paddingRight="@dimen/tv_btn_padding_h"
+                    android:text="重试"
+                    android:textColor="@color/btn_text"
+                    android:textSize="@dimen/tv_btn_text_size"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

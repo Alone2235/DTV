@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Dtv</string>
+    <string name="player_hint">↑↓ 换视频　←→ 快退/快进　OK 暂停　菜单 设置</string>
+    <string name="cover_desc">视频封面</string>
+</resources>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 视频卡片焦点态：白描边 + 外圈柔光（iOS/澎湃的"光晕焦点"，4.2 用 layer-list+inset 模拟） -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <layer-list>
+            <!-- 柔光外圈：比卡片大一圈的半透明白描边 -->
+            <item>
+                <inset
+                    android:insetLeft="@dimen/focus_halo_inset"
+                    android:insetTop="@dimen/focus_halo_inset"
+                    android:insetRight="@dimen/focus_halo_inset"
+                    android:insetBottom="@dimen/focus_halo_inset">
+                    <shape android:shape="rectangle">
+                        <solid android:color="@android:color/transparent" />
+                        <stroke android:width="3dp" android:color="@color/focus_glow" />
+                        <corners android:radius="@dimen/card_radius" />
+                    </shape>
+                </inset>
+            </item>
+            <!-- 卡片主体：提亮 + 白描边 -->
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/bg_surface_hi" />
+                    <corners android:radius="@dimen/card_radius" />
+                    <stroke android:width="@dimen/focus_stroke_width" android:color="@color/focus_stroke" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/bg_surface" />
+            <corners android:radius="@dimen/card_radius" />
+        </shape>
+    </item>
+</selector>

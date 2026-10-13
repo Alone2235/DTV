@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  自检结果行
+  ==========
+  这是诊断日志，不是可操作列表 —— 所以条目本身【不聚焦】，
+  焦点留在 RecyclerView 上，遥控器 ↑↓ 直接滚动整个日志。
+  （若条目各自可聚焦，D-Pad 会先在各行间跳，反而滚不动。）
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/probeLine"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fontFamily="monospace"
+    android:lineSpacingExtra="3dp"
+    android:paddingLeft="@dimen/space_l"
+    android:paddingRight="@dimen/space_l"
+    android:paddingTop="@dimen/space_xs"
+    android:paddingBottom="@dimen/space_xs"
+    android:textColor="@color/text_secondary"
+    android:textSize="@dimen/text_caption" />

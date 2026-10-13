@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 面板容器：大圆角卡片底色（iOS 弹层风格） -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/bg_surface" />
+    <corners android:radius="@dimen/radius_xl" />
+</shape>

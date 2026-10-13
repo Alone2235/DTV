@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ★ 不透明纯色（原 #99000000 半透明）★
+     中央半透明圆正好压在视频上，同样属于「半透明容器盖住播放器视图」。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#E6000000" />
+    <stroke android:width="2dp" android:color="#FFFFFFFF" />
+</shape>

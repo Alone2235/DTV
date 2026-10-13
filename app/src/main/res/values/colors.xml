@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ★ 统一配色令牌（TV 端）★
+  参考云视听小电视 / 奇异果 TV 的深色体系：
+   · 底色近黑但不纯黑（纯黑在电视上发闷、且和视频黑边糊成一片）
+   · 卡片色比底色亮一档，靠明度差做层次，不靠描边
+   · 文字三级：主 / 次 / 弱，明确拉开信息层级
+   · 品牌色取抖音红，用于选中态与强调
+-->
+<resources>
+    <!-- ==================== 背景层次 ==================== -->
+    <color name="bg_root">#FF0B0B0F</color>
+    <!-- 页面底色 -->
+    <color name="bg_nav">#FF101015</color>
+    <!-- 侧边导航底色（比页面略亮，形成分区） -->
+    <color name="bg_surface">#FF16161C</color>
+    <!-- 卡片 / 面板 -->
+    <color name="bg_surface_hi">#FF1F1F28</color>
+    <!-- 卡片聚焦态（再亮一档） -->
+    <color name="bg_chip">#FF23232C</color>
+    <!-- 小按钮 / 标签底色 -->
+
+    <!-- ==================== 文字层次 ==================== -->
+    <color name="text_primary">#FFFFFFFF</color>
+    <!-- 标题 -->
+    <color name="text_secondary">#B8FFFFFF</color>
+    <!-- 副信息（作者/时长） -->
+    <color name="text_tertiary">#7AFFFFFF</color>
+    <!-- 提示 / 计数 -->
+    <color name="text_on_brand">#FFFFFFFF</color>
+
+    <!-- ==================== 品牌与焦点 ==================== -->
+    <color name="brand">#FFFE2C55</color>
+    <!-- 抖音红 -->
+    <color name="brand_dim">#66FE2C55</color>
+    <color name="brand_tint">#14FE2C55</color>
+    <!-- 选中项淡品牌底（AppleTV 风格 active 态） -->
+    <color name="focus_stroke">#FFFFFFFF</color>
+    <!-- 焦点描边 -->
+    <color name="focus_glow">#33FFFFFF</color>
+
+    <!-- ==================== 功能色 ==================== -->
+    <color name="accent_warn">#FFFFD54F</color>
+    <color name="accent_error">#FFF06292</color>
+    <color name="accent_ok">#FF81C784</color>
+    <color name="divider">#1AFFFFFF</color>
+
+    <!-- ==================== 半透明覆盖层（scrim） ==================== -->
+    <color name="scrim_strong">#B3000000</color>
+    <!-- 强覆盖（信息条/提示底） -->
+    <color name="scrim_overlay">#CC000000</color>
+    <!-- 角标底（时长/竖屏标记） -->
+</resources>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ★ 统一尺寸规范（TV 端）★
+  电视是 3 米外观看、只有遥控器：
+   · 字号下限 14sp（正文）/ 18sp（可读信息），低于此在电视上糊成一片
+   · 所有间距走 4dp 网格，禁止随手写 13dp/17dp 这类值
+   · 焦点可见性优先于信息密度
+-->
+<resources>
+
+    <!-- ============ 间距体系（4dp 网格） ============ -->
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_s">8dp</dimen>
+    <dimen name="space_m">12dp</dimen>
+    <dimen name="space_l">16dp</dimen>
+    <dimen name="space_xl">24dp</dimen>
+    <dimen name="space_xxl">32dp</dimen>
+
+    <!-- ============ 圆角体系 ============ -->
+    <dimen name="radius_s">6dp</dimen>
+    <dimen name="radius_m">10dp</dimen>
+    <dimen name="radius_l">14dp</dimen>
+    <dimen name="radius_xl">20dp</dimen>
+    <!-- 大卡片 / 面板（iOS / 澎湃大圆角） -->
+
+    <!-- ============ 字号体系 ============ -->
+    <dimen name="text_display">30sp</dimen>
+    <!-- 页面大标题 -->
+    <dimen name="text_title">22sp</dimen>
+    <!-- 分区标题 -->
+    <dimen name="text_subtitle">18sp</dimen>
+    <!-- 卡片标题 -->
+    <dimen name="text_body">16sp</dimen>
+    <!-- 正文 / 按钮 -->
+    <dimen name="text_caption">14sp</dimen>
+    <!-- 副信息 -->
+    <dimen name="text_micro">12sp</dimen>
+    <!-- 角标 -->
+
+    <!-- ============ 焦点描边 ============ -->
+    <dimen name="focus_stroke_width">2dp</dimen>
+    <!-- 聚焦柔光外扩宽度（layer-list 模拟光晕） -->
+    <dimen name="focus_halo_inset">4dp</dimen>
+
+    <!-- ============ 侧边导航 ============ -->
+    <dimen name="tv_nav_width">178dp</dimen>
+    <dimen name="tv_nav_padding_h">16dp</dimen>
+    <dimen name="tv_nav_padding_v">20dp</dimen>
+    <dimen name="tv_nav_item_height">46dp</dimen>
+    <dimen name="tv_nav_item_margin_v">3dp</dimen>
+    <dimen name="tv_nav_text_size">18sp</dimen>
+    <dimen name="tv_nav_logo_size">26sp</dimen>
+
+    <!-- ============ 内容区 ============ -->
+    <dimen name="tv_content_padding">28dp</dimen>
+    <dimen name="tv_section_title_size">22sp</dimen>
+    <dimen name="tv_page_title_size">28sp</dimen>
+    <!-- 主界面大标题（AppleTV 风格层级） -->
+    <dimen name="tv_section_title_margin_bottom">16dp</dimen>
+
+    <!-- ============ 视频卡片 ============ -->
+    <!-- 卡片总宽 260dp：1920 宽下每行 6 张（含间距）刚好铺满，留白均匀 -->
+    <dimen name="card_width">260dp</dimen>
+    <dimen name="card_cover_height">146dp</dimen>
+    <!-- 16:9 -->
+    <dimen name="card_radius">16dp</dimen>
+    <!-- iOS/澎湃大圆角 -->
+    <dimen name="card_cover_inset">6dp</dimen>
+    <!-- 封面内缩（4.2 无 clipToOutline，靠内缩呈现圆角收边） -->
+    <dimen name="card_info_min_height">52dp</dimen>
+    <dimen name="card_title_size">16sp</dimen>
+    <dimen name="card_meta_size">13sp</dimen>
+    <dimen name="card_h_gap">16dp</dimen>
+    <dimen name="card_v_gap">20dp</dimen>
+
+    <!-- ============ 分类 Tab 条 ============ -->
+    <dimen name="tab_height">44dp</dimen>
+    <dimen name="tab_text_size">17sp</dimen>
+    <dimen name="tab_padding_h">22dp</dimen>
+
+    <!-- ============ 通用按钮 ============ -->
+    <dimen name="btn_height">46dp</dimen>
+    <dimen name="btn_text_size">18sp</dimen>
+    <dimen name="btn_padding_h">24dp</dimen>
+
+
+    <!-- ============================================================
+         兼容别名：布局里仍在使用的旧名字，值统一对齐上面的令牌体系。
+         后续重构布局时会逐步换成新令牌名；先保证现有布局可用。
+         ============================================================ -->
+    <dimen name="tv_text_title">22sp</dimen>
+    <dimen name="tv_text_body">16sp</dimen>
+    <dimen name="tv_text_small">13sp</dimen>
+
+    <dimen name="tv_card_width">260dp</dimen>
+    <dimen name="tv_card_height">198dp</dimen>
+    <dimen name="tv_card_info_height">44dp</dimen>
+    <dimen name="tv_card_title_size">16sp</dimen>
+    <dimen name="tv_card_meta_size">13sp</dimen>
+    <dimen name="tv_card_margin">14dp</dimen>
+    <dimen name="tv_card_duration_bg_size">12sp</dimen>
+
+    <dimen name="tv_btn_height">46dp</dimen>
+    <dimen name="tv_btn_min_width">120dp</dimen>
+    <dimen name="tv_btn_padding_h">24dp</dimen>
+    <dimen name="tv_btn_text_size">18sp</dimen>
+
+    <dimen name="tv_tab_height">44dp</dimen>
+    <dimen name="tv_tab_text_size">17sp</dimen>
+
+    <dimen name="tv_placeholder_icon">72dp</dimen>
+    <dimen name="tv_placeholder_text">18sp</dimen>
+    <dimen name="tv_placeholder_btn_gap">20dp</dimen>
+
+</resources>
+

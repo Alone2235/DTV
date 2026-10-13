@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  视频列表项（作者主页 / 话题页 / 搜索结果共用）
+
+  ★ TV 硬性规则适配 ★
+  1. root 可聚焦（focusable + focusableInTouchMode），配 focus_card 高亮
+  2. 尺寸按 TV 远距离观看放大：封面 96x128 → 168x224，标题 15sp → 20sp
+  3. 文字不设过小字号：正文最低 16sp
+  4. 封面配占位图/失败兜底图（在代码里切，这里给默认背景）
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/focus_card"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/space_l"
+    android:paddingRight="@dimen/space_xl"
+    android:paddingTop="@dimen/space_l"
+    android:paddingBottom="@dimen/space_l">
+
+    <!-- 封面：竖屏视频多为 3:4，按 168x224 裁切 -->
+    <ImageView
+        android:id="@+id/itemCover"
+        android:layout_width="168dp"
+        android:layout_height="224dp"
+        android:background="@drawable/cover_placeholder"
+        android:contentDescription="@string/cover_desc"
+        android:scaleType="centerCrop" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/space_xl"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/itemTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lineSpacingExtra="5dp"
+            android:maxLines="3"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_subtitle" />
+
+        <TextView
+            android:id="@+id/itemSub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_body" />
+    </LinearLayout>
+
+</LinearLayout>

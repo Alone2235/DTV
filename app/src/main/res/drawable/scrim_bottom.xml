@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ★ 不透明纯色（原为半透明渐变）★ 与 scrim_top 同理，见其注释。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FF0B0B0F" />
+</shape>

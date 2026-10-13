@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 播放页：v11 极简结构 —— 裸 SurfaceView 铺满，避免 Mali450 合成器黑方块 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF000000">
+
+    <!-- ★ 核心：直接 SurfaceView 铺满全屏，不做任何比例约束 -->
+    <!-- 旧版 AspectFrame 嵌套导致 Mali450 SurfaceFlinger 合成失败 → 黑方块 -->
+    <!-- ★ 比例容器：按视频真实比例约束显示区域 ★
+         黑方块的真因是覆盖层背景（已移除），与本容器无关。 -->
+    <!-- 容器自己占满全屏；内部视频 View 由 onLayout 显式居中 -->
+    <com.example.douyintv.AspectFrame
+        android:id="@+id/aspectFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/surface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.example.douyintv.AspectFrame>
+
+    <!-- ============ 弹幕层（透明叠加在视频上，不拦截焦点/触摸） ============ -->
+    <com.example.douyintv.DanmakuView
+        android:id="@+id/danmaku"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <!-- ============ 顶部信息（作者 + 标题） ============ -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/tv_content_padding"
+        android:paddingRight="@dimen/tv_content_padding"
+        android:paddingTop="@dimen/space_l"
+        android:paddingBottom="@dimen/tv_content_padding"
+        android:visibility="visible">
+
+        <TextView
+            android:id="@+id/tvAuthor"
+            android:shadowColor="#FF000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/tv_section_title_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDesc"
+            android:shadowColor="#FF000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:ellipsize="end"
+            android:lineSpacingExtra="3dp"
+            android:maxLines="2"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_subtitle" />
+    </LinearLayout>
+
+    <!-- ============ 暂停指示 ============ -->
+    <TextView
+        android:id="@+id/ivPause"
+        android:shadowColor="#FF000000"
+        android:shadowDx="0"
+        android:shadowDy="2"
+        android:shadowRadius="8"
+        android:layout_width="84dp"
+        android:layout_height="84dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="❚❚"
+        android:textColor="@color/text_primary"
+        android:textSize="28sp"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- ============ 状态提示 ============ -->
+    <TextView
+        android:id="@+id/tvStatus"
+        android:shadowColor="#FF000000"
+        android:shadowDx="0"
+        android:shadowDy="2"
+        android:shadowRadius="8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="150dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:textColor="@color/accent_warn"
+        android:textSize="@dimen/text_subtitle" />
+
+    <!-- ============ 底部栏：进度 + 功能按钮 ============ -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/tv_content_padding"
+        android:paddingRight="@dimen/tv_content_padding"
+        android:paddingTop="@dimen/tv_content_padding"
+        android:paddingBottom="@dimen/space_m"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvPos"
+            android:shadowColor="#FF000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:minWidth="52dp"
+                android:text="00:00"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_body" />
+
+            <ProgressBar
+                android:id="@+id/seekBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="4dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginRight="14dp"
+                android:layout_weight="1"
+                android:max="1000"
+                android:progress="0"
+                android:progressDrawable="@drawable/seekbar_player" />
+
+            <TextView
+                android:id="@+id/tvDur"
+            android:shadowColor="#FF000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:gravity="right"
+                android:minWidth="52dp"
+                android:text="00:00"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_body" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/btnPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:background="@drawable/focus_chip"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:minWidth="76dp"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:text="❚❚"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/text_subtitle" />
+
+            <TextView
+                android:id="@+id/btnAuthor"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/focus_chip"
+                android:ellipsize="end"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:maxWidth="240dp"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:singleLine="true"
+                android:text="作者"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+            <TextView
+                android:id="@+id/btnTopic"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/focus_chip"
+                android:ellipsize="end"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:maxWidth="240dp"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:singleLine="true"
+                android:text="#话题"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+            <TextView
+                android:id="@+id/btnComment"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/focus_chip"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:singleLine="true"
+                android:text="评论"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+            <TextView
+                android:id="@+id/btnSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/focus_chip"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:singleLine="true"
+                android:text="搜索"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+            <!-- ★ 点赞 / 收藏 直达（高频操作，不进菜单） -->
+            <TextView
+                android:id="@+id/btnDigg"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/focus_chip"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:minWidth="64dp"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp"
+                android:singleLine="true"
+                android:text="赞"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+            <TextView
+                android:id="@+id/btnCollect"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/focus_chip"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:minWidth="64dp"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp"
+                android:singleLine="true"
+                android:text="⭐"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+            <!-- ★ 触屏入口：遥控 MENU 键之外，触摸用户点这个也能进功能菜单 -->
+            <TextView
+                android:id="@+id/btnMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/tv_btn_height"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/focus_chip"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:singleLine="true"
+                android:text="菜单"
+                android:textColor="@color/btn_text"
+                android:textSize="@dimen/tv_btn_text_size" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvHint"
+            android:shadowColor="#FF000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:textColor="@color/text_tertiary"
+                android:textSize="@dimen/text_body" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

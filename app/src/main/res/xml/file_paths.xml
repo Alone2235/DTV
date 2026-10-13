@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FileProvider 路径表：只暴露 filesDir/update.apk（手机遥控上传的升级包） -->
+<paths>
+    <files-path name="update" path="update.apk" />
+</paths>

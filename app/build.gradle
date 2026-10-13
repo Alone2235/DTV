@@ -1,0 +1,114 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.example.douyintv'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.example.douyintv'
+        minSdk 17
+        targetSdk 26
+        versionCode 116            // ★ 版本号规则（用户定）：对外显示十进制小进位 —— 1.99 → 2.00 → 2.01 …
+            //   versionCode 只保证单调递增（Android 升级判断），与显示名不必一一对应。
+            //   例：code 99 → "1.99"，code 100 → "2.00"，code 101 → "2.01"。
+            versionName "2.16"
+
+        // ★ 只打 32 位原生库（体积优化）★
+        //   目标机是 Cortex-A7 + Android 4.2 —— 32 位 ARM。
+        //   arm64-v8a 支持是 Android 5.0 (API 21) 才引入的，本机 API 17
+        //   连 64 位 .so 都无法加载，打进去纯属死重量。
+        //   实测省下约 2.7 MB：ijkffmpeg/ijkplayer/ijksdl/conscrypt 各一份。
+        //   若将来要上 64 位盒子，把 'arm64-v8a' 加回这个列表即可。
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
+
+        // ★ 开启多 dex：方法数已越过 65536（原始 dex 约 6 MB，必须分片）。
+        //   support 版 multidex 不会牵入 AndroidX（AGP 只在
+        //   androidx.multidex 缺失时才自动补，此处已显式声明 support 版）。
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions { jvmTarget = '1.8' }
+    lint { abortOnError false; checkReleaseBuilds false }
+    buildFeatures { buildConfig = true }   // ★ AGP 8 默认关：代码里要读 BuildConfig.VERSION_NAME
+    packagingOptions {
+        jniLibs { useLegacyPackaging = true }
+        doNotStrip '**/*.so'
+    }
+
+    // ★ 产物文件名带上版本号 —— 否则永远叫 app-debug.apk，
+    //   用户从文件管理器根本分辨不出装的是新版还是旧版
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "Dtv-${variant.versionName}-${variant.buildType.name}.apk"
+        }
+    }
+}
+
+// ★ 依赖体系回到 v11（AndroidX + ExoPlayer 2.18.1）★
+//   根因记录：v27 为让网格用上 support-v7 RecyclerView，与 ExoPlayer 2.18.1
+//   的 androidx 传递依赖发生重复类冲突（checkDebugDuplicateClasses 失败），
+//   于是把引擎降级成 2016 年的 r1.5 —— 从此在 Mali450 / API17 上出现
+//   黑方块 + 比例错乱 + 起播慢。
+//   用户手里播放完全正常的 v11，dex 里就是 com/google/android/exoplayer2/**
+//   （SimpleExoPlayer / MediaItem）且不带 r1.5 专有类。
+//   故整体切回 AndroidX 体系（列表控件也用 androidx 版），让 2.18.1 共存。
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:3.12.13'
+    // 【已移除】gson —— 红线禁止 Gson/Moshi，JSON 统一改用系统 org.json。
+
+    // ★ TV 列表铁律：列表必须用 RecyclerView，禁止 ScrollView/ListView 承载。
+    //   改用 androidx 版 —— 与 ExoPlayer 2.18.1 同体系，消除重复类冲突。
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    // dex 方法数已越过单 dex 上限，用 androidx 版 multidex（minSdk 14 可用）。
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    // ★ 播放引擎1: ExoPlayer 2.18.1 —— 与 v11 同版本，这是播放正常的关键 ★
+    //   2.x API：MediaItem + SimpleExoPlayer + setVideoSurface（同步绑定）
+    //   替代原先的 r1.5（SampleSource + MSG_SET_SURFACE 异步消息，Mali450 上不稳）
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.1'
+
+    // 播放引擎2: IJKPlayer（软解兜底）
+    implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
+    // ★ 本地编译 IJK：自编译 ff_ffplay.c 补丁（IO中断+OMX析构防御），so 放 jniLibs/armeabi-v7a/
+    //   删掉 armv7a/arm64 aar，避免官方 so 冲突
+
+    // 播放引擎3: libVLC 3.6.3（minSdk 17 官方支持 Android 4.2）
+    //   自带 ffmpeg + 自己的音频/视频管线：不依赖系统 AudioTrack 时间戳（Exo 没声根因），
+    //   无 IJK 的 OMX 释放竞态（VLC 自己管理 MediaCodec 生命周期）。
+    implementation 'org.videolan.android:libvlc-all:3.6.3'
+
+    // 局域网 Cookie 推送服务
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+
+    // ★ 关键: Conscrypt = Google 的独立 TLS 栈（BoringSSL, minSdk 9）
+    //   Android 4.2 系统 TLS 只谈到 TLS1.0/老 cipher，抖音服务器直接断连；
+    //   Conscrypt 自带现代 TLS 1.2/1.3 + GCM/ChaCha20，绕开系统缺口。
+    //   （已确认它是干净的 org/conscrypt/*，不带任何 androidx）
+    implementation 'org.conscrypt:conscrypt-android:2.5.2'
+
+    // 注: multiDexEnabled=true 时 AGP 会自动带上 androidx.multidex，无需手动声明
+
+    // 二维码：3.3.3 是最后兼容 Java 7 / Android 4.x 的版本（3.4+ 需 Java 8）
+    implementation 'com.google.zxing:core:3.3.3'
+
+    // 纯 JVM 单元测试（不进 APK，不引入 AndroidX）
+    testImplementation 'junit:junit:4.13.2'
+    // ★ JVM 单元测试里 android.jar 的 org.json 是空桩（方法体为空），
+    //   会让 CookieNormalizeTest 这类测试假失败。加真实实现覆盖它。
+    testImplementation 'org.json:json:20231013'
+}

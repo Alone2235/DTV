@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 视频卡片常态：圆角 + 比页面亮一档的底色（靠明度做层次，不靠描边） -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/bg_surface" />
+    <corners android:radius="@dimen/card_radius" />
+</shape>

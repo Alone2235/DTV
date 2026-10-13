@@ -1,0 +1,14 @@
+﻿# 构建产物 / 本地环境
+build/
+app/build/
+.gradle/
+.gradle-user-home/
+local.properties
+*.apk
+*.hprof
+hs_err_pid*.log
+replay_pid*.log
+__pycache__/
+*.class
+.idea/
+*.iml

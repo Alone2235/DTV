@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  封面占位图 —— 加载中显示。
+
+  规则要求「所有图片必须配置占位图、加载失败兜底图，防止空白黑屏」。
+  用纯色 + 中央一个简笔图标位，避免用户看到全黑以为卡死。
+  注意：老设备上避免用渐变（Mali450 上 dithering 反而更容易出现色带），
+  因此改用两段纯色块拼出近似层次。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 底：深灰 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FF232323" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+
+    <!-- 中央图标位：一个方块 + 一个三角的简化组合（不依赖字体，杜绝 emoji 方块） -->
+    <item
+        android:width="56dp"
+        android:height="56dp"
+        android:gravity="center">
+        <shape android:shape="rectangle">
+            <solid android:color="#33FFFFFF" />
+            <corners android:radius="6dp" />
+        </shape>
+    </item>
+</layer-list>

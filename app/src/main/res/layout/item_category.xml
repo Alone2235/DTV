@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  顶部分类标签项
+  ==============
+  参照：Dtv 顶部横向导航（选中项是红色胶囊）
+        + PC 版顶部分类栏（选中项下方红色下划线）
+
+  这里采用「胶囊填充」方案，因为电视上：
+    · 焦点态和选中态必须能同时区分
+    · 纯下划线在 3 米外太细看不清
+  两个状态分别用 focus_*_tab 和 selected 背景表达。
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/tv_tab_height"
+    android:layout_marginRight="6dp"
+    android:layout_marginLeft="0dp"
+    android:background="@drawable/tab_bg"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:gravity="center"
+    android:minWidth="76dp"
+    android:paddingLeft="18dp"
+    android:paddingRight="18dp"
+    android:singleLine="true"
+    android:textColor="@color/tab_text"
+    android:textSize="@dimen/tv_tab_text_size" />

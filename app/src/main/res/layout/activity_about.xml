@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  关于 Dtv（二级页）
+  =================
+  展示：作者名称 + 作者主页二维码 + 版本号 + 签名指纹（防篡改核对用）。
+  风格与设置页保持一致（bg_root / focus_chip / text_* 同源）。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_root"
+    android:orientation="vertical"
+    android:padding="@dimen/tv_content_padding">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="关于 Dtv"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/tv_section_title_size"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xl"
+        android:orientation="horizontal">
+
+        <!-- 作者主页二维码：白底 8dp 内边距，方便手机扫 -->
+        <ImageView
+            android:id="@+id/ivQr"
+            android:layout_width="280dp"
+            android:layout_height="280dp"
+            android:background="#FFFFFF"
+            android:contentDescription="作者主页二维码"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/about_qr" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/space_l"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="作者"
+                android:textColor="@color/text_tertiary"
+                android:textSize="@dimen/text_caption" />
+
+            <TextView
+                android:id="@+id/tvAuthor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_body"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="当前版本"
+                android:textColor="@color/text_tertiary"
+                android:textSize="@dimen/text_caption" />
+
+            <TextView
+                android:id="@+id/tvVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_body" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="签名指纹（SHA-256）"
+                android:textColor="@color/text_tertiary"
+                android:textSize="@dimen/text_caption" />
+
+            <TextView
+                android:id="@+id/tvSig"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_caption" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSigBadge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_l"
+        android:background="@color/scrim_strong"
+        android:padding="@dimen/space_m"
+        android:text="⚠ 签名与官方版本不一致！本应用可能被第三方篡改（重打包/植入）。请卸载后从作者发布的官方渠道重新安装。"
+        android:textColor="@color/accent_error"
+        android:textSize="@dimen/text_body"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_m"
+        android:text="用手机抖音 / 相机扫一扫左侧二维码，直达作者主页"
+        android:textColor="@color/text_tertiary"
+        android:textSize="@dimen/text_caption" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dtv 是公开免费作品。请仅从作者官方渠道下载安装，谨防第三方篡改版本。"
+        android:textColor="@color/text_tertiary"
+        android:textSize="@dimen/text_caption" />
+
+</LinearLayout>

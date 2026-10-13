@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  设置页（只留诊断）
+  ==================
+  登录已经拆到独立的 LoginActivity（左侧导航「登录」进入）。
+  这一页不再碰 Cookie，也不再启动推送服务（避免和登录页抢 8088 端口），
+  只保留排查类入口。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_root"
+    android:orientation="vertical"
+    android:padding="@dimen/tv_content_padding">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="设置"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/tv_section_title_size"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_m"
+        android:text="登录请到左侧「登录」页（扫码推送 Cookie / 退出登录）"
+        android:textColor="@color/text_tertiary"
+        android:textSize="@dimen/text_caption" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xl"
+        android:layout_marginBottom="@dimen/space_s"
+        android:text="诊断工具"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_caption" />
+
+    <TextView
+        android:id="@+id/btnDiag"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tv_btn_height"
+        android:layout_marginBottom="@dimen/space_s"
+        android:background="@drawable/focus_chip"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/space_l"
+        android:paddingRight="@dimen/space_l"
+        android:text="■  黑方块诊断（纯白页）"
+        android:textColor="@color/btn_text"
+        android:textSize="@dimen/text_body" />
+
+    <TextView
+        android:id="@+id/btnProbe"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tv_btn_height"
+        android:background="@drawable/focus_chip"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/space_l"
+        android:paddingRight="@dimen/space_l"
+        android:text="⌘  接口自检（热搜 / 搜索 / 联想）"
+        android:textColor="@color/btn_text"
+        android:textSize="@dimen/text_body" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xl"
+        android:layout_marginBottom="@dimen/space_s"
+        android:text="关于"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_caption" />
+
+    <TextView
+        android:id="@+id/btnAbout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tv_btn_height"
+        android:background="@drawable/focus_chip"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/space_l"
+        android:paddingRight="@dimen/space_l"
+        android:text="ℹ  关于 Dtv（作者 / 主页二维码 / 版本签名校验）"
+        android:textColor="@color/btn_text"
+        android:textSize="@dimen/text_body" />
+
+    <TextView
+        android:id="@+id/tvCodecs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_m"
+        android:lineSpacingExtra="2dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_caption" />
+
+</LinearLayout>

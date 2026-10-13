@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 通用列表屏（评论区 / 作者主页共用） -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_root"
+    android:orientation="vertical">
+
+    <!-- 标题栏（渐变） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/scrim_top"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/tv_content_padding"
+        android:paddingRight="@dimen/tv_content_padding"
+        android:paddingTop="@dimen/space_l"
+        android:paddingBottom="@dimen/space_l">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/tv_section_title_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvSub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_subtitle" />
+    </LinearLayout>
+
+    <!-- ★ TV 列表铁律：RecyclerView 替换原 ListView ★
+         ListView 在 TV 上有两个硬伤：
+           1) 无法用 nextFocus* 精确约束方向键去向，焦点容易飞出屏幕
+           2) 没有强制的 ViewHolder 复用契约，item 复杂度上来后滚动掉帧
+         descendantFocusability="afterDescendants" 让【子项】优先获得焦点
+         （TV 需要的是 item 高亮，而不是列表容器自己被选中）。 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:descendantFocusability="afterDescendants"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:paddingLeft="@dimen/space_m"
+        android:paddingRight="@dimen/space_m"
+        android:paddingTop="@dimen/space_s"
+        android:paddingBottom="@dimen/space_s"
+        android:scrollbars="none" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/scrim_strong"
+        android:gravity="center"
+        android:padding="@dimen/space_s"
+        android:textColor="@color/accent_warn"
+        android:textSize="17sp" />
+
+</LinearLayout>

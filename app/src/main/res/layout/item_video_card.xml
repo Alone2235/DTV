@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  视频卡片（统一视觉层次）
+  ==========================
+  层次：封面（主体）→ 标题（白，16sp，2 行）→ 副信息（次白，13sp）
+  焦点：底色提亮 + 2dp 白描边（@drawable/focus_card）
+
+  为什么封面不是圆角：API 17 上没有 clipToOutline，
+  ImageView 无法把 src 裁剪成圆角，硬做需要 Bitmap 处理（老设备不划算）。
+  改用「卡片圆角 + 封面内缩 padding」达到同样的视觉收边效果。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/tv_card_width"
+    android:layout_height="wrap_content"
+    android:layout_marginRight="@dimen/tv_card_margin"
+    android:layout_marginBottom="@dimen/tv_card_margin"
+    android:background="@drawable/focus_card"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    android:padding="@dimen/card_cover_inset">
+
+    <!-- 封面 + 角标 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/card_cover_height">
+
+        <ImageView
+            android:id="@+id/ivCover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/cover_desc"
+            android:scaleType="centerCrop" />
+
+        <ProgressBar
+            android:id="@+id/pbCover"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="@dimen/space_xs"
+            android:background="@color/scrim_overlay"
+            android:paddingLeft="@dimen/space_xs"
+            android:paddingRight="@dimen/space_xs"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/tv_card_duration_bg_size" />
+
+        <TextView
+            android:id="@+id/tvVertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|left"
+            android:layout_margin="@dimen/space_xs"
+            android:background="@color/scrim_overlay"
+            android:paddingLeft="@dimen/space_xs"
+            android:paddingRight="@dimen/space_xs"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:text="竖屏"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/tv_card_duration_bg_size"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- 信息区：标题 + 副信息（★ 压缩：标题 1 行，避免文字区喧宾夺主） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tv_card_info_height"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/space_s"
+        android:paddingRight="@dimen/space_s"
+        android:paddingTop="@dimen/space_xs">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/tv_card_title_size" />
+
+        <TextView
+            android:id="@+id/tvMeta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/tv_card_meta_size" />
+    </LinearLayout>
+</LinearLayout>

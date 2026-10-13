@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  评论列表项（紧凑版）
+  ==================
+  ★ 本轮改造：从「一屏 3 条」压到「一屏 7~8 条」★
+
+  压缩依据（原值 -> 新值）：
+    padding 上下 18dp -> 10dp        （省 16dp/条）
+    正文 maxLines 8 -> 3             （省 5 行 ≈ 145dp/条）  ← 最关键的一处
+    正文 lineSpacing 4dp -> 2dp      （3 行共省 6dp）
+    正文字号 19sp -> 18sp            （仍远高于手机版，3 米可读）
+    marginTop 8/10dp -> 5/6dp        （省 7dp/条）
+    作者 17sp -> 16sp，计数 15sp -> 13sp（作者名仍加粗区隔）
+
+  为什么敢砍 maxLines：
+    评论正文短句占绝大多数，8 行上限是为极少数长评准备的，
+    代价却是所有短评都被 padding 撑到 300dp+。电视是"扫读"场景，
+    截断后用「…」提示比占满一屏更合理。
+
+  TV 规则：
+    · root 可聚焦 + focus_card 高亮（遥控器焦点可见）
+    · 字号仍在 13sp 以上（远距可读下限）
+    · 用 wrap_content 而非固定高度：评论长短差异大，固定高度会截断短评的留白观感
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/focus_card"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/space_l"
+    android:paddingRight="@dimen/space_l"
+    android:paddingTop="@dimen/space_s"
+    android:paddingBottom="@dimen/space_s">
+
+    <TextView
+        android:id="@+id/cmtAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="#FF8AB4F8"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/cmtText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:ellipsize="end"
+        android:lineSpacingExtra="2dp"
+        android:maxLines="3"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/text_subtitle" />
+
+    <!-- ★ 评论媒体：图片评论 / 视频评论封面（无媒体时隐藏） -->
+    <FrameLayout
+        android:id="@+id/cmtMediaBox"
+        android:layout_width="168dp"
+        android:layout_height="112dp"
+        android:layout_marginTop="@dimen/space_xs"
+        android:background="@drawable/card_bg"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/ivMedia"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+        <!-- 视频评论角标：▶ -->
+        <TextView
+            android:id="@+id/ivMediaTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="@dimen/space_xs"
+            android:background="@color/scrim_overlay"
+            android:paddingLeft="@dimen/space_xs"
+            android:paddingRight="@dimen/space_xs"
+            android:text="▶"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_caption"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/cmtMeta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@color/text_tertiary"
+        android:textSize="@dimen/text_micro" />
+
+</LinearLayout>

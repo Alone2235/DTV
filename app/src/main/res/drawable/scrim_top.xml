@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ★ 不透明纯色（原为 #D9→#66→#00 半透明渐变）★
+     原因：老电视（Mali450 / Android 4.2）上，全宽半透明渐变覆盖在 SurfaceView 上
+     会被合成成黑色矩形 —— 这就是「黑方块」的头号来源。
+     不透明纯色不参与 alpha 混合，最稳；播放器控制栏用不透明底色是常规做法。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FF0B0B0F" />
+</shape>

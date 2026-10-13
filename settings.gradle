@@ -1,0 +1,36 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        google(); mavenCentral(); gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        // ★ flatDir 必须放在 settings 里 ★
+        //   本项目使用 RepositoriesMode.PREFER_SETTINGS，
+        //   app/build.gradle 里声明的 repositories 会被直接忽略。
+        //   路径相对 rootProject，故写 app/libs。
+        flatDir { dirs 'app/libs' }
+        // ★ mavenLocal() 必须排最前 ★
+        //   support 库（recyclerview-v7 及其 20 个传递依赖）已由脚本预置到
+        //   ~/.m2/repository。原因：本机经 Gradle 远程解析这批 artifact 会诡异失败
+        //   （报错居然指向无关的 AGP marker），离线模式又说"无缓存"。
+        //   走本地仓库最稳、最快，也不受网络抖动影响。
+        mavenLocal()
+        // 保持「阿里云优先 + 官方兜底」——
+        //   本机实测：走官方 google()/mavenCentral() 会 SSL 失败，
+        //   而阿里云镜像全部可达。顺序一旦颠倒，所有依赖解析都会挂。
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }   // ijkplayer 所在
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "TVDouyinNative"
+include ':app'
