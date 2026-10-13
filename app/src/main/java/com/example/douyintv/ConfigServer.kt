@@ -258,6 +258,22 @@ class ConfigServer(
                     PlayerBus.send(action, arg)
                     newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "ok")
                 }
+                // ★ 界面按键注入（与 WSServer 同语义）：方向键 / OK / 返回 / 菜单
+                "dpad_up" -> keyResp(android.view.KeyEvent.KEYCODE_DPAD_UP)
+                "dpad_down" -> keyResp(android.view.KeyEvent.KEYCODE_DPAD_DOWN)
+                "dpad_left" -> keyResp(android.view.KeyEvent.KEYCODE_DPAD_LEFT)
+                "dpad_right" -> keyResp(android.view.KeyEvent.KEYCODE_DPAD_RIGHT)
+                "ok" -> keyResp(android.view.KeyEvent.KEYCODE_DPAD_CENTER)
+                "back" -> keyResp(android.view.KeyEvent.KEYCODE_BACK)
+                "menu" -> keyResp(android.view.KeyEvent.KEYCODE_MENU)
+                "key" -> {
+                    arg.trim().toIntOrNull()?.let { App.sendKey(it) }
+                    newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "ok")
+                }
+                "seekto" -> {
+                    arg.trim().toLongOrNull()?.let { PlayerBus.send("seek", it.toString()) }
+                    newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "ok")
+                }
                 "search" -> {
                     // ★ 手机遥控传的是 arg（不是 kw）：直接推搜索词并拉起搜索页
                     if (arg.isBlank()) newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "关键词为空")
@@ -323,6 +339,14 @@ class ConfigServer(
         for (w in words) arr.put(w.word)
         return newFixedLengthResponse(
             Response.Status.OK, "application/json; charset=utf-8", arr.toString())
+    }
+
+    /** 按键注入的统一返回（手机遥控方向键/返回/菜单走这里） */
+    private fun keyResp(keyCode: Int): Response {
+        val ok = App.sendKey(keyCode)
+        return newFixedLengthResponse(
+            Response.Status.OK, "text/plain; charset=utf-8",
+            if (ok) "ok" else "no-foreground")
     }
 
     private fun status(session: IHTTPSession): Response {

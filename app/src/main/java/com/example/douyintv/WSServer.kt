@@ -89,6 +89,22 @@ class WSServer(private val appCtx: Context) : Thread("DTV-WS") {
                     PlayerBus.send(cmd, arg)
                     """{"ok":true}"""
                 }
+                // ★ 界面按键注入：方向键 / OK / 返回 / 菜单（遥控端因此能操控电视界面）
+                "dpad_up" -> { App.sendKey(android.view.KeyEvent.KEYCODE_DPAD_UP); """{"ok":true}""" }
+                "dpad_down" -> { App.sendKey(android.view.KeyEvent.KEYCODE_DPAD_DOWN); """{"ok":true}""" }
+                "dpad_left" -> { App.sendKey(android.view.KeyEvent.KEYCODE_DPAD_LEFT); """{"ok":true}""" }
+                "dpad_right" -> { App.sendKey(android.view.KeyEvent.KEYCODE_DPAD_RIGHT); """{"ok":true}""" }
+                "ok" -> { App.sendKey(android.view.KeyEvent.KEYCODE_DPAD_CENTER); """{"ok":true}""" }
+                "back" -> { App.sendKey(android.view.KeyEvent.KEYCODE_BACK); """{"ok":true}""" }
+                "menu" -> { App.sendKey(android.view.KeyEvent.KEYCODE_MENU); """{"ok":true}""" }
+                "key" -> {
+                    arg.trim().toIntOrNull()?.let { App.sendKey(it) }
+                    """{"ok":true}"""
+                }
+                "seekto" -> {
+                    arg.trim().toLongOrNull()?.let { PlayerBus.send("seek", it.toString()) }
+                    """{"ok":true}"""
+                }
                 "search" -> {
                     if (arg.isNotBlank()) {
                         SearchBus.push(arg)

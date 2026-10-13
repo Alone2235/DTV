@@ -128,6 +128,67 @@ class App : MultiDexApplication() {
         /** 应用级 Context 的公开入口（设备能力检测等无参调用方使用） */
         fun appContext(): Context? = appCtx
 
+        // ---------------- 手机遥控 → 电视界面按键注入 ----------------
+        // 之前遥控端只能操控播放（上下条/暂停/点赞/倍速…），完全发不了方向键，
+        // 等于操控不了电视界面；这里跟踪前台 Activity 并注入 KeyEvent 补齐。
+
+        @Volatile
+        private var actRef: java.lang.ref.WeakReference<android.app.Activity>? = null
+
+        @Volatile
+        private var tracking = false
+
+        /** 懒注册 Activity 生命周期跟踪（首次发按键时注册，避免改 onCreate 调用顺序） */
+        private fun ensureTracking() {
+            if (tracking) return
+            val app = appCtx as? Application ?: return
+            tracking = true
+            try {
+                app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+                    override fun onActivityResumed(a: android.app.Activity) {
+                        actRef = java.lang.ref.WeakReference(a)
+                    }
+                    override fun onActivityPaused(a: android.app.Activity) {
+                        if (actRef?.get() === a) actRef = null
+                    }
+                    override fun onActivityCreated(a: android.app.Activity, b: android.os.Bundle?) {}
+                    override fun onActivityStarted(a: android.app.Activity) {}
+                    override fun onActivityStopped(a: android.app.Activity) {}
+                    override fun onActivitySaveInstanceState(a: android.app.Activity, b: android.os.Bundle) {}
+                    override fun onActivityDestroyed(a: android.app.Activity) {}
+                })
+            } catch (_: Throwable) {}
+        }
+
+        /**
+         * 向前台 Activity 注入一次按键（DOWN + UP）。
+         * 支持方向键 / OK / 返回 / 菜单 —— 手机遥控因此能操作电视界面，而不只是播放。
+         */
+        fun sendKey(keyCode: Int): Boolean {
+            ensureTracking()
+            val a = actRef?.get() ?: return false
+            return try {
+                a.runOnUiThread {
+                    try {
+                        val t = android.os.SystemClock.uptimeMillis()
+                        a.dispatchKeyEvent(android.view.KeyEvent(
+                            t, t, android.view.KeyEvent.ACTION_DOWN, keyCode, 0))
+                        a.dispatchKeyEvent(android.view.KeyEvent(
+                            t, t, android.view.KeyEvent.ACTION_UP, keyCode, 0))
+                    } catch (_: Throwable) {}
+                }
+                true
+            } catch (_: Throwable) {
+                false
+            }
+        }
+
+        /** 遥控端用：当前是否有前台界面可接收按键 */
+        fun hasForeground(): Boolean {
+            ensureTracking()
+            return actRef?.get() != null
+        }
+
         /** 横屏过滤开关 —— 解析层调用入口 */
         fun landscapeOnly(): Boolean {
             val c = appCtx ?: return false
