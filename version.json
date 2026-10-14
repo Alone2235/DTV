@@ -1,8 +1,8 @@
 {
-    "versionCode":  121,
-    "versionName":  "2.21",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.21/Dtv-2.21-debug.apk",
-    "sha256":  "c403d812877ce09ad6b357b9ebfab538aa08734e97fad00872b0b48ef3ca9cb5",
-    "notes":  "1. ★ 更新包 SHA-256 校验（下载+安装双重验签，防篡改/防坏包）\n2. 签名统一（2.20）：本地/CI/发布同一密钥\n3. 安全加固（2.19）：配对码不回显/限速/补鉴权/allowBackup=false\n4. 外部唤醒入口 + 方向键/OK/返回/菜单",
+    "versionCode":  122,
+    "versionName":  "2.22",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.22/Dtv-2.22-release.apk",
+    "sha256":  "c749a31c7bd4bb49f3da62b4d845429607a22fa6f98c80e8df5b7862f731fd8f",
+    "notes":  "1. ★ 正式改用 Release 构建包（不再是 debug 包）：debuggable=false、固定签名、体积更小\n2. 更新包 SHA-256 双重验签（下载+安装前各校验一次）\n3. 签名统一（本地=CI=发布），更新不再报签名不同\n4. 安全加固：配对码不回显/限速/端点补鉴权/allowBackup=false\n5. 外部唤醒入口 + 方向键/OK/返回/菜单",
     "force":  false
 }
