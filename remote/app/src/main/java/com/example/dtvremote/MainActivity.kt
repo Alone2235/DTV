@@ -7,7 +7,10 @@ import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -237,10 +240,13 @@ class MainActivity : ComponentActivity() {
             Spacer(Modifier.height(8.dp))
             TouchPad(Modifier.weight(1f).fillMaxWidth())
             Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(12.dp))
+            DpadCluster()          // ★ 方向键/OK/返回/菜单（此前手机端完全没有这些按钮）
+            Spacer(Modifier.height(12.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                CircleBtn("⏮", "上一条", false) { send("prev") }
-                CircleBtn("▶", "播放", true, 68.dp) { send("toggle") }
-                CircleBtn("⏭", "下一条", false) { send("next") }
+                CircleBtn(R.drawable.ic_prev, "上一条", false) { send("prev") }
+                CircleBtn(R.drawable.ic_play, "播放", true, 68.dp) { send("toggle") }
+                CircleBtn(R.drawable.ic_next, "下一条", false) { send("next") }
             }
             Spacer(Modifier.height(10.dp))
         }
@@ -293,9 +299,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** 圆形按钮：按下 spring 回弹（真弹簧物理） */
+    /** 圆形按钮：矢量图标（不再用 emoji）+ 按下 spring 回弹 */
     @Composable
-    private fun CircleBtn(label: String, title: String, primary: Boolean, size: androidx.compose.ui.unit.Dp = 62.dp, act: () -> Unit) {
+    private fun CircleBtn(icon: Int, title: String, primary: Boolean, size: androidx.compose.ui.unit.Dp = 62.dp, act: () -> Unit) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             val interaction = remember { MutableInteractionSource() }
             val pressed by interaction.collectIsPressedAsState()
@@ -313,9 +319,64 @@ class MainActivity : ComponentActivity() {
                     .border(1.dp, if (primary) Color(0x66FFFFFF) else Color(0x33FFFFFF), CircleShape)
                     .clickable(interactionSource = interaction, indication = null) { haptic(); act() },
                 contentAlignment = Alignment.Center
-            ) { Text(label, color = Color.White, fontSize = 22.sp) }
+            ) {
+                Image(
+                    painter = painterResource(icon), contentDescription = title,
+                    colorFilter = ColorFilter.tint(Color.White),
+                    modifier = Modifier.size(size * 0.42f)
+                )
+            }
             Spacer(Modifier.height(4.dp))
             Text(title, color = Color(0xFF8A8A99), fontSize = 11.sp)
+        }
+    }
+
+    /** 方向键九宫格 + 返回/菜单（TV 端自 2.18 起已支持这些指令） */
+    @Composable
+    private fun DpadCluster() {
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                KeyBtn(R.drawable.ic_back, "返回") { send("back") }
+                Spacer(Modifier.width(8.dp))
+                KeyBtn(R.drawable.ic_dpad_up, "上") { send("dpad_up") }
+                Spacer(Modifier.width(8.dp))
+                KeyBtn(R.drawable.ic_menu, "菜单") { send("menu") }
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                KeyBtn(R.drawable.ic_dpad_left, "左") { send("dpad_left") }
+                Spacer(Modifier.width(8.dp))
+                KeyBtn(R.drawable.ic_ok, "OK", primary = true) { send("ok") }
+                Spacer(Modifier.width(8.dp))
+                KeyBtn(R.drawable.ic_dpad_right, "右") { send("dpad_right") }
+            }
+            Spacer(Modifier.height(8.dp))
+            KeyBtn(R.drawable.ic_dpad_down, "下") { send("dpad_down") }
+        }
+    }
+
+    /** 方形按键：矢量图标 + 按下弹簧回弹 */
+    @Composable
+    private fun KeyBtn(icon: Int, desc: String, primary: Boolean = false, act: () -> Unit) {
+        val interaction = remember { MutableInteractionSource() }
+        val pressed by interaction.collectIsPressedAsState()
+        val scale by animateFloatAsState(
+            targetValue = if (pressed) 0.90f else 1f,
+            animationSpec = spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessMediumLow),
+            label = "key"
+        )
+        Box(
+            Modifier.size(54.dp).scale(scale).clip(RoundedCornerShape(14.dp))
+                .background(if (primary) Color(0xFFFE2C55) else Color(0x1FFFFFFF))
+                .border(1.dp, if (primary) Color(0x66FFFFFF) else Color(0x33FFFFFF), RoundedCornerShape(14.dp))
+                .clickable(interactionSource = interaction, indication = null) { haptic(); act() },
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(icon), contentDescription = desc,
+                colorFilter = ColorFilter.tint(Color.White),
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 

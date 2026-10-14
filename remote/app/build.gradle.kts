@@ -11,11 +11,23 @@ android {
         applicationId = "com.example.dtvremote"
         minSdk = 21
         targetSdk = 34
-        versionCode = 24
-        versionName = "3.00"
+        versionCode = 25
+        versionName = "3.01"
+    }
+    signingConfigs {
+        create("dtv") {
+            storeFile = file("dtv.keystore")
+            storePassword = "dtv2019"
+            keyAlias = "dtv"
+            keyPassword = "dtv2019"
+        }
     }
     buildTypes {
-        release { isMinifyEnabled = false }
+        debug { signingConfig = signingConfigs.getByName("dtv") }
+        release {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("dtv")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
