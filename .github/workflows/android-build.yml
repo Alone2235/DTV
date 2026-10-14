@@ -42,26 +42,26 @@ jobs:
 
       # ★ 本仓库只有 gradlew.bat（Windows 生成），没有 Linux 的 gradlew 脚本，
       #   因此直接用 wrapper jar 启动 —— 跨平台且不依赖 shell 脚本。
-      - name: Build TV debug APK
+      - name: Build TV release APK
         env:
           GRADLE_OPTS: "-Xmx2048m -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8"
         run: |
           java -cp gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain \
-            :app:assembleDebug --no-daemon --stacktrace \
+            :app:assembleRelease --no-daemon --stacktrace \
             -Dorg.gradle.jvmargs="-Xmx2048m -XX:MaxMetaspaceSize=512m"
 
-      - name: Upload TV APK
+      - name: Upload TV release APK
         uses: actions/upload-artifact@v4
         with:
-          name: DTV-TV-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: DTV-TV-release-apk
+          path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
       - name: Publish Release (仅 tag v*)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/debug/*.apk
+          files: app/build/outputs/apk/release/*.apk
           generate_release_notes: true
           draft: false
           prerelease: false

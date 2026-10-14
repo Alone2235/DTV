@@ -11,10 +11,10 @@ android {
         applicationId 'com.example.douyintv'
         minSdk 17
         targetSdk 26
-        versionCode 121            // ★ 版本号规则（用户定）：对外显示十进制小进位 —— 1.99 → 2.00 → 2.01 …
+        versionCode 122            // ★ 版本号规则（用户定）：对外显示十进制小进位 —— 1.99 → 2.00 → 2.01 …
             //   versionCode 只保证单调递增（Android 升级判断），与显示名不必一一对应。
             //   例：code 99 → "1.99"，code 100 → "2.00"，code 101 → "2.01"。
-            versionName "2.21"
+            versionName "2.22"
 
         // ★ 只打 32 位原生库（体积优化）★
         //   目标机是 Cortex-A7 + Android 4.2 —— 32 位 ARM。
@@ -42,8 +42,12 @@ android {
     buildTypes {
         debug { signingConfig signingConfigs.release }
         release {
-            minifyEnabled true
-            shrinkResources true
+            // ★ 正式发布包：debuggable=false（release 默认）+ 固定签名 dtv.keystore
+            //   混淆暂不开：TV 端依赖 Conscrypt / org.json / IJK / 手写 WebSocket，
+            //   未在真机实测前开 minify + shrinkResources 极易运行时崩溃（类/方法被裁掉）。
+            //   待真机稳定后逐条补 proguard 规则再开。
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
