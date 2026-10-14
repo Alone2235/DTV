@@ -432,15 +432,15 @@ class ConfigServer(
                 return@Thread
             }
             if (!interactive) {
-                val f = UpdateChecker.download(appCtx, info.apkUrl) { }
-                if (f != null) UpdateChecker.install(appCtx) else uiToast("更新下载失败")
+                val f = UpdateChecker.download(appCtx, info.apkUrl, info.sha256) { }
+                if (f != null) UpdateChecker.install(appCtx, info.sha256) else uiToast("更新下载失败")
                 return@Thread
             }
             val act = App.currentActivity()
             if (act == null) {
                 // 没有前台界面（如在播放页直接调用）→ 退化为直接下载安装
-                val f = UpdateChecker.download(appCtx, info.apkUrl) { }
-                if (f != null) UpdateChecker.install(appCtx)
+                val f = UpdateChecker.download(appCtx, info.apkUrl, info.sha256) { }
+                if (f != null) UpdateChecker.install(appCtx, info.sha256)
                 return@Thread
             }
             act.runOnUiThread {
@@ -451,8 +451,8 @@ class ConfigServer(
                         .setPositiveButton("立即升级") { _, _ ->
                             uiToast("开始下载更新…")
                             Thread {
-                                val f = UpdateChecker.download(appCtx, info.apkUrl) { }
-                                if (f != null) UpdateChecker.install(appCtx) else uiToast("更新下载失败")
+                                val f = UpdateChecker.download(appCtx, info.apkUrl, info.sha256) { }
+                                if (f != null) UpdateChecker.install(appCtx, info.sha256) else uiToast("更新下载失败")
                             }.start()
                         }
                         .setNegativeButton("稍后", null)

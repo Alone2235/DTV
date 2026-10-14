@@ -72,8 +72,8 @@ object ExternalActions {
             }
             val act = App.currentActivity()
             if (!interactive || act == null) {
-                val f = UpdateChecker.download(ctx, info.apkUrl) { }
-                if (f != null) UpdateChecker.install(ctx) else toast(ctx, "更新下载失败")
+                val f = UpdateChecker.download(ctx, info.apkUrl, info.sha256) { }
+                if (f != null) UpdateChecker.install(ctx, info.sha256) else toast(ctx, "更新下载失败")
                 return@Thread
             }
             act.runOnUiThread {
@@ -84,8 +84,8 @@ object ExternalActions {
                         .setPositiveButton("立即升级") { _, _ ->
                             toast(ctx, "开始下载更新…")
                             Thread {
-                                val f = UpdateChecker.download(ctx, info.apkUrl) { }
-                                if (f != null) UpdateChecker.install(ctx) else toast(ctx, "更新下载失败")
+                                val f = UpdateChecker.download(ctx, info.apkUrl, info.sha256) { }
+                                if (f != null) UpdateChecker.install(ctx, info.sha256) else toast(ctx, "更新下载失败")
                             }.start()
                         }
                         .setNegativeButton("稍后", null)

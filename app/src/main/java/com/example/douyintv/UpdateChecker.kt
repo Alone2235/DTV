@@ -41,6 +41,7 @@ object UpdateChecker {
         val versionName: String,
         val apkUrl: String,
         val notes: String,
+        val sha256: String,
         val force: Boolean
     )
 
@@ -62,6 +63,7 @@ object UpdateChecker {
                 o.optString("versionName", ""),
                 o.optString("apkUrl", ""),
                 o.optString("notes", ""),
+                o.optString("sha256", ""),
                 o.optBoolean("force", false)
             )
         } catch (e: Exception) {
@@ -81,7 +83,7 @@ object UpdateChecker {
      * 下载 APK 到 filesDir/update.apk（覆盖旧文件）。
      * onProgress(0..100)；成功返回文件，失败返回 null。
      */
-    fun download(ctx: Context, apkUrl: String, onProgress: (Int) -> Unit): File? {
+    fun download(ctx: Context, apkUrl: String, expectedSha256: String = "", onProgress: (Int) -> Unit = {}): File? {
         val target = File(ctx.filesDir, "update.apk")
         return try {
             val conn = (URL(apkUrl).openConnection() as HttpURLConnection).apply {
@@ -106,6 +108,12 @@ object UpdateChecker {
             }
             conn.disconnect()
             onProgress(100)
+            // ★ 下载完成 → SHA-256 校验（version.json 提供期望值，防篡改/防坏包）
+            if (expectedSha256.isNotBlank() && !sha256Of(target).equals(expectedSha256.trim().lowercase(), ignoreCase = true)) {
+                Log.e(TAG, "SHA-256 校验失败，拒绝安装（期望 ${expectedSha256.take(12)}… 实际 ${sha256Of(target).take(12)}…）")
+                target.delete()
+                return null
+            }
             target
         } catch (e: Exception) {
             Log.e(TAG, "下载失败: ${e.message}")
@@ -113,11 +121,34 @@ object UpdateChecker {
         }
     }
 
+    /** 计算文件 SHA-256（小写 hex） */
+    private fun sha256Of(file: File): String {
+        return try {
+            val md = java.security.MessageDigest.getInstance("SHA-256")
+            file.inputStream().use { ins ->
+                val buf = ByteArray(128 * 1024)
+                while (true) {
+                    val n = ins.read(buf)
+                    if (n < 0) break
+                    md.update(buf, 0, n)
+                }
+            }
+            md.digest().joinToString("") { String.format("%02x", it) }
+        } catch (e: Exception) {
+            Log.e(TAG, "SHA-256 计算失败: ${e.message}")
+            ""
+        }
+    }
+
     /** 唤起系统安装器（走 FileProvider，targetSdk 26 不允许裸 file://） */
-    fun install(ctx: Context): Boolean {
+    fun install(ctx: Context, expectedSha256: String = ""): Boolean {
         return try {
             val f = File(ctx.filesDir, "update.apk")
             if (!f.exists()) return false
+            if (expectedSha256.isNotBlank() && !sha256Of(f).equals(expectedSha256.trim().lowercase(), ignoreCase = true)) {
+                Log.e(TAG, "安装前 SHA-256 校验失败，拒绝安装")
+                return false
+            }
             val uri: Uri = androidx.core.content.FileProvider.getUriForFile(
                 ctx, ctx.packageName + ".fileprovider", f)
             val i = Intent(Intent.ACTION_VIEW).apply {

@@ -210,14 +210,14 @@ class MainActivity : Activity() {
     private fun downloadAndInstall(info: UpdateChecker.Info) {
         android.widget.Toast.makeText(this, "开始下载更新…", android.widget.Toast.LENGTH_SHORT).show()
         Thread {
-            val f = UpdateChecker.download(this, info.apkUrl) { p ->
+            val f = UpdateChecker.download(this, info.apkUrl, info.sha256) { p ->
                 if (p % 25 == 0) Log.d("Update", "下载 $p%")
             }
             handler.post {
                 if (f == null) {
                     android.widget.Toast.makeText(this, "下载失败，请检查网络", android.widget.Toast.LENGTH_LONG).show()
                 } else {
-                    UpdateChecker.install(this)
+                    UpdateChecker.install(this, info.sha256)
                 }
             }
         }.start()
