@@ -1,7 +1,8 @@
 {
-    "versionCode":  120,
-    "versionName":  "2.20",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.20/Dtv-2.20-debug.apk",
-    "notes":  "1. ★ 签名统一：本地/CI/发布同一密钥，修复每版签名不同无法更新（首次需卸载重装）\n2. 安全加固：配对码不回显/限速/补鉴权/allowBackup=false\n3. 外部唤醒入口：checkupdate/upgrade/settings/about/home/exit/reload（HTTP+WS）\n4. 遥控器缺口：方向键/OK/返回/菜单/seekto",
+    "versionCode":  121,
+    "versionName":  "2.21",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.21/Dtv-2.21-debug.apk",
+    "sha256":  "c403d812877ce09ad6b357b9ebfab538aa08734e97fad00872b0b48ef3ca9cb5",
+    "notes":  "1. ★ 更新包 SHA-256 校验（下载+安装双重验签，防篡改/防坏包）\n2. 签名统一（2.20）：本地/CI/发布同一密钥\n3. 安全加固（2.19）：配对码不回显/限速/补鉴权/allowBackup=false\n4. 外部唤醒入口 + 方向键/OK/返回/菜单",
     "force":  false
 }
