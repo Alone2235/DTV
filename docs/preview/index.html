@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DTV 可交互原型</title>
+<style>
+:root{
+  --brand:#FE2C55; --brand-dim:#C41E45;
+  --bg:#0A0B0F; --surface:#14141A; --surface-2:#23232E;
+  --hairline:rgba(255,255,255,.10); --glass-edge:rgba(255,255,255,.26);
+  --txt:#fff; --txt-2:#9A9AA8; --txt-3:#5A5A6A;
+  --ok:#81C784; --bad:#F06292;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;
+  --r-panel:16px;--r-ctrl:10px;--r-chip:999px;
+  --h-ctrl:56px;
+  --dur-fast:160ms;--dur-base:240ms;--dur-slow:320ms;
+  --spring:cubic-bezier(.34,1.56,.64,1);      /* 近似 Q 弹 */
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#05060A;color:var(--txt);font-family:"MiSans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  display:flex;gap:var(--s5);padding:var(--s5);align-items:flex-start;flex-wrap:wrap}
+.stage{display:flex;flex-direction:column;gap:var(--s2)}
+.stage>h2{font-size:12px;color:var(--txt-2);font-weight:500;letter-spacing:.04em}
+/* ---------- 设备框 ---------- */
+.device{width:390px;height:780px;border-radius:36px;overflow:hidden;position:relative;
+  background:var(--bg);
+  border:1px solid var(--hairline);display:flex;flex-direction:column}
+.device.tv{width:800px;height:450px;border-radius:12px}
+.topbar{display:flex;align-items:center;gap:var(--s2);padding:var(--s3) var(--s4);font-size:14px;color:var(--txt-2)}
+.dot{width:10px;height:10px;border-radius:99px;background:var(--bad);transition:background var(--dur-base)}
+.dot.on{background:var(--ok)}
+.logo{width:24px;height:24px;flex:none;border-radius:7px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)}
+.logo svg{width:100%;height:100%;display:block}
+.brand{display:flex;align-items:center;gap:8px}
+.brand .nm{font-size:15px;color:#fff;font-weight:600}
+.brand .sub{font-size:11px;color:var(--txt-3)}
+.sidehead{display:flex;align-items:center;gap:8px;padding:6px 4px 10px}
+.sidehead .logo{width:26px;height:26px;border-radius:8px}
+.sidehead .nm{font-size:14px;color:#fff;font-weight:600;letter-spacing:.02em}
+.more{width:36px;height:36px;border-radius:10px;align-items:center;justify-content:center}
+.more svg{width:20px;height:20px;fill:var(--txt-2)}
+.menu{position:absolute;right:14px;top:52px;min-width:168px;background:var(--surface);border:1px solid var(--hairline);border-radius:var(--r-ctrl);padding:6px;display:none;z-index:9}
+.menu.on{display:block}
+.mi{display:flex;align-items:center;gap:10px;height:44px;padding:0 10px;border-radius:8px;font-size:14px;color:var(--txt);cursor:pointer}
+.mi:hover{background:rgba(255,255,255,.07)}
+.mi svg{width:18px;height:18px;fill:var(--txt-2)}
+.body{flex:1;padding:0 var(--s4);display:flex;flex-direction:column;gap:var(--s4);min-height:0;overflow:hidden}
+.page{display:none;flex:1;flex-direction:column;gap:var(--s4);min-height:0}
+.page.on{display:flex}
+/* ---------- 触控板 ---------- */
+.pad{flex:1;border-radius:var(--r-panel);background:rgba(255,255,255,.03);border:1px solid var(--hairline);
+  position:relative;display:flex;align-items:center;justify-content:center;color:var(--txt-3);font-size:12px;
+  touch-action:none;cursor:grab;transition:background var(--dur-fast),transform var(--dur-fast) var(--spring)}
+.pad:active{background:rgba(255,255,255,.07);transform:scale(.985);cursor:grabbing}
+.pad .hint{text-align:center;line-height:1.8;padding:0 24px;pointer-events:none}
+.pad .fly{position:absolute;font-size:15px;color:var(--brand);font-weight:600;opacity:0;pointer-events:none}
+.pad .fly.show{animation:fly var(--dur-slow) var(--ease) forwards}
+@keyframes fly{0%{opacity:0;transform:scale(.9)}30%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.08)}}
+.corner{position:absolute;width:16px;height:16px;border:2px solid rgba(255,255,255,.20);border-radius:3px}
+.c1{top:12px;left:12px;border-right:0;border-bottom:0}
+.c2{top:12px;right:12px;border-left:0;border-bottom:0}
+.c3{bottom:12px;left:12px;border-right:0;border-top:0}
+.c4{bottom:12px;right:12px;border-left:0;border-top:0}
+/* ---------- 按键 ---------- */
+.cbtn{width:64px;height:64px;border-radius:99px;background:var(--surface-2);border:1px solid var(--hairline);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:transform var(--dur-fast) var(--spring),box-shadow var(--dur-fast)}
+.cbtn:active{transform:scale(.88)}
+.cbtn.primary{width:76px;height:76px;background:linear-gradient(180deg,var(--brand),var(--brand-dim));
+  border-color:rgba(255,255,255,.4);box-shadow:none}
+.cbtn svg{width:26px;height:26px;fill:#fff}
+.row{display:flex;align-items:center;justify-content:center;gap:var(--s5)}
+.dpad{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s2);flex:1}
+.dr{display:flex;gap:var(--s2)}
+.kbtn{width:var(--h-ctrl);height:var(--h-ctrl);border-radius:var(--r-ctrl);background:rgba(255,255,255,.12);
+  border:1px solid var(--hairline);display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:transform var(--dur-fast) var(--spring),background var(--dur-fast)}
+.kbtn:active{transform:scale(.9);background:rgba(255,255,255,.2)}
+.kbtn.primary{background:var(--brand);border-color:rgba(255,255,255,.4)}
+.kbtn svg{width:24px;height:24px;fill:#fff}
+/* ---------- 表单/卡片 ---------- */
+.sect{display:flex;flex-direction:column;gap:var(--s2)}
+.sect>.label{font-size:12px;color:var(--txt-2)}
+.field{height:var(--h-ctrl);border-radius:var(--r-ctrl);background:var(--surface);border:1px solid var(--hairline);
+  display:flex;align-items:center;padding:0 var(--s3);color:var(--txt-3);font-size:14px}
+.btn{height:var(--h-ctrl);border-radius:var(--r-ctrl);background:var(--surface-2);display:flex;align-items:center;
+  justify-content:center;font-size:14px;border:1px solid var(--hairline);cursor:pointer;transition:transform var(--dur-fast) var(--spring)}
+.btn:active{transform:scale(.96)}
+.sw{width:52px;height:32px;border-radius:99px;background:var(--surface-2);position:relative;cursor:pointer;transition:background var(--dur-base)}
+.sw.on{background:var(--brand)}
+.sw i{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:99px;background:#fff;transition:transform var(--dur-base) var(--spring)}
+.sw.on i{transform:translateX(20px)}
+.listrow{display:flex;align-items:center;height:var(--h-ctrl);font-size:14px}
+/* ================= 组件库（全页面统一语言，杜绝 Material 默认样式） ================= */
+/* 输入框：深色面板 + 圆角 10 + 聚焦品牌描边 */
+.inp{display:flex;align-items:center;gap:10px;height:56px;border-radius:var(--r-ctrl);
+  background:var(--surface);border:1px solid var(--hairline);padding:0 14px;transition:border-color var(--dur-base)}
+.inp:focus-within{border-color:var(--brand)}
+.inp input{flex:1;background:none;border:0;outline:0;color:#fff;font-size:14px;font-family:inherit;min-width:0}
+.inp input::placeholder{color:var(--txt-3)}
+.inp svg{width:18px;height:18px;fill:var(--txt-3);flex:none}
+.inp .clear{width:20px;height:20px;border-radius:99px;background:rgba(255,255,255,.14);
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--txt-2);cursor:pointer;flex:none}
+.inp.err{border-color:#F06292}
+
+/* 按钮三级：L1 主（品牌实心）/ L2 次（中性）/ L3 辅（透明描边） */
+.b1,.b2,.b3{height:56px;border-radius:var(--r-ctrl);display:flex;align-items:center;justify-content:center;
+  gap:8px;font-size:14px;cursor:pointer;border:1px solid transparent;
+  transition:transform var(--dur-fast) var(--spring),background var(--dur-fast)}
+.b1{background:linear-gradient(180deg,var(--brand),var(--brand-dim));color:#fff;font-weight:600;border-color:rgba(255,255,255,.28)}
+.b2{background:var(--surface-2);color:#fff;border-color:var(--hairline)}
+.b3{background:transparent;color:var(--txt-2);border-color:var(--hairline)}
+.b1:active,.b2:active,.b3:active{transform:scale(.97)}
+.b1 svg,.b2 svg,.b3 svg{width:18px;height:18px;fill:currentColor}
+.iconbtn{width:56px;height:56px;border-radius:var(--r-ctrl);background:transparent;border:1px solid var(--hairline);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt-2)}
+.iconbtn svg{width:20px;height:20px;fill:currentColor}
+
+/* 分组卡片：靠明度差分层，不靠粗描边 */
+.group{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--r-ctrl);overflow:hidden}
+.group>.gh{padding:10px 14px 4px;font-size:12px;color:var(--txt-3)}
+.grow{display:flex;align-items:center;gap:12px;height:56px;padding:0 14px;cursor:pointer;
+  border-top:1px solid var(--hairline);font-size:14px;color:#fff}
+.grow:first-child{border-top:0}
+.grow svg.ico{width:20px;height:20px;fill:var(--txt-2);flex:none}
+.grow .val{margin-left:auto;color:var(--brand);font-size:13px}
+.grow .sub{margin-left:auto;color:var(--txt-3);font-size:12px}
+.grow .chev{width:16px;height:16px;fill:var(--txt-3);flex:none}
+
+/* 开关：自绘（品牌色轨迹 + 弹性滑块） */
+.sw2{width:52px;height:32px;border-radius:99px;background:var(--surface-2);position:relative;cursor:pointer;
+  transition:background var(--dur-base);border:1px solid var(--hairline);flex:none}
+.sw2.on{background:var(--brand);border-color:transparent}
+.sw2 i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:99px;background:#fff;
+  transition:transform var(--dur-base) var(--spring)}
+.sw2.on i{transform:translateX(20px)}
+
+/* 设备卡片（L1 主角） */
+.devcard{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-ctrl);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--hairline)}
+.devcard .tv{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;flex:none}
+.devcard .tv svg{width:22px;height:22px;fill:#fff}
+.devcard .nm{font-size:15px;color:#fff;font-weight:600}
+.devcard .mm{font-size:12px;color:var(--txt-3);margin-top:2px}
+
+/* 空态 / 加载态 / 错误态 */
+.state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  padding:32px 16px;text-align:center;color:var(--txt-3);font-size:13px;flex:1}
+.state svg{width:36px;height:36px;fill:var(--txt-3);opacity:.7}
+.state .st{color:var(--txt-2);font-size:14px}
+.skel{height:56px;border-radius:var(--r-ctrl);background:linear-gradient(90deg,#1A1A22,#24242E,#1A1A22);
+  background-size:200% 100%;animation:sk 1.3s infinite}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* 对话框（玻璃面板，不用系统 AlertDialog 观感） */
+.dlg{position:absolute;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:20}
+.dlg.on{display:flex}
+.dlg .card{width:78%;background:#16161D;border:1px solid var(--glass-edge);border-radius:var(--r-panel);
+  padding:20px;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.dlg .dt{font-size:17px;color:#fff;font-weight:600;margin-bottom:8px}
+.dlg .db{font-size:13px;color:var(--txt-2);line-height:1.6;margin-bottom:18px}
+.dlg .da{display:flex;gap:10px}
+.dlg .da>*{flex:1}
+
+/* 分段控件 */
+.seg{display:flex;background:var(--surface-2);border-radius:10px;padding:3px;gap:3px}
+.seg>div{flex:1;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--txt-2);cursor:pointer;transition:background var(--dur-base),color var(--dur-base)}
+.seg>div.on{background:rgba(255,255,255,.12);color:#fff}
+/* ============ 电视端内页组件：暂停菜单 / 评论区 / 作者主页 ============ */
+.sheet{margin:0 12px 10px;background:rgba(20,20,26,.92);border:1px solid var(--glass-edge);
+  border-radius:var(--r-panel);padding:10px 12px;backdrop-filter:blur(9px)}
+.sheet .stitle{display:flex;align-items:baseline;gap:8px;font-size:16px;color:#fff;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet .stitle .au{font-size:13px;color:var(--txt-2);font-weight:400;flex:none}
+.prow{display:flex;align-items:center;gap:10px;margin:8px 0 10px}
+.prow .tt{font-size:12px;color:var(--txt-3);flex:none;font-variant-numeric:tabular-nums}
+.pbar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.16);position:relative}
+.pbar i{position:absolute;left:0;top:0;bottom:0;width:38%;border-radius:2px;background:var(--brand)}
+.pbar b{position:absolute;left:38%;top:-4px;width:12px;height:12px;border-radius:99px;background:#fff;transform:translateX(-6px)}
+.times{display:flex;justify-content:space-between;font-size:13px;color:var(--txt-3);margin-bottom:14px}
+.acts{display:flex;gap:8px;align-items:center}
+.divv{width:1px;height:22px;background:var(--hairline);margin:0 2px;flex:none}
+.act{height:48px;padding:0 14px;border-radius:var(--r-ctrl);background:rgba(255,255,255,.07);
+  border:2px solid transparent;display:flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--txt-2);cursor:pointer;white-space:nowrap}
+.act svg{width:20px;height:20px;fill:currentColor}
+.act.focus{border-color:var(--brand);color:#fff;background:rgba(255,255,255,.10)}
+.act.on{color:var(--brand)}
+.acts2{display:flex;gap:6px;align-items:center;margin-left:auto}
+.acts2 .mini{width:40px;height:40px;border-radius:10px;background:transparent;border:1px solid var(--hairline);
+  display:flex;align-items:center;justify-content:center;cursor:pointer}
+.acts2 .mini svg{width:20px;height:20px;fill:var(--txt-2)}
+.acts2 .mini.focus{border-color:var(--brand)}
+.acts2 .mini.focus svg{fill:#fff}
+/* 评论区 / 列表 */
+.cmt{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--hairline)}
+.cmt:first-child{border-top:0}
+.ava{width:36px;height:36px;border-radius:99px;background:linear-gradient(135deg,#2A2A38,#3A3A4A);flex:none}
+.cmt .cn{font-size:13px;color:var(--txt-2)}
+.cmt .ct2{font-size:15px;color:#fff;line-height:1.45;margin-top:2px}
+.cmt .cl{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-3);margin-top:6px}
+.cmt .cl svg{width:16px;height:16px;fill:var(--txt-3)}
+/* 作者主页头 */
+.prof{display:flex;align-items:center;gap:14px;padding:4px 0 12px}
+.prof .ava{width:64px;height:64px;border-radius:99px}
+.prof .pnm{font-size:22px;color:#fff;font-weight:600}
+.prof .pst{font-size:14px;color:var(--txt-2);margin-top:4px}
+.prof .follow{margin-left:auto;height:48px;padding:0 22px;border-radius:var(--r-ctrl);background:var(--brand);
+  color:#fff;font-size:15px;display:flex;align-items:center;border:2px solid transparent;cursor:pointer}
+.prof .follow.focus{border-color:#fff}
+/* 视频列表行（收藏/作品） */
+.vrow{display:flex;gap:12px;align-items:center;padding:8px;border-radius:var(--r-ctrl);border:2px solid transparent;cursor:pointer}
+.vrow.focus{border-color:var(--brand)}
+.vrow .th{width:120px;height:68px;border-radius:8px;background:linear-gradient(135deg,#20202C,#2C2C3A);flex:none;position:relative}
+.vrow .th .dur{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.72);border-radius:4px;padding:0 5px;font-size:11px}
+.vrow .vt{font-size:16px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vrow .vm{font-size:13px;color:var(--txt-3);margin-top:4px}
+/* ============ 内容真实感：缩略图多样性 / 角标 / 观看进度 / 反馈 ============ */
+.cover{overflow:hidden}
+.cover::after{content:"";position:absolute;inset:0;border-radius:8px;
+  background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.55))}
+.c1{background:linear-gradient(135deg,#3A2A4A,#5A3A5A)}
+.c2{background:linear-gradient(135deg,#1E3A4A,#2A5A6A)}
+.c3{background:linear-gradient(135deg,#4A3A1E,#6A5A2A)}
+.c4{background:linear-gradient(135deg,#2A3A2A,#3A5A3A)}
+.c5{background:linear-gradient(135deg,#3A1E2A,#5A2A3A)}
+.c6{background:linear-gradient(135deg,#242438,#38384F)}
+.dur{z-index:2}
+.watched{position:absolute;left:5px;right:5px;bottom:5px;height:3px;border-radius:2px;background:rgba(255,255,255,.22);z-index:2}
+.watched i{position:absolute;left:0;top:0;bottom:0;width:62%;border-radius:2px;background:var(--brand)}
+.badge{position:absolute;left:5px;top:5px;z-index:2;font-size:11px;line-height:16px;padding:0 5px;border-radius:4px;
+  background:rgba(254,44,85,.92);color:#fff}
+.badge.gray{background:rgba(0,0,0,.62)}
+.plays{position:absolute;right:5px;top:5px;z-index:2;font-size:11px;color:#fff;opacity:.9;
+  display:flex;align-items:center;gap:3px}
+.plays svg{width:12px;height:12px;fill:#fff}
+/* Toast / Snackbar 反馈层 */
+.toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(8px);opacity:0;
+  background:rgba(30,30,38,.96);border:1px solid var(--glass-edge);border-radius:999px;
+  padding:10px 18px;font-size:13px;color:#fff;white-space:nowrap;pointer-events:none;
+  transition:opacity var(--dur-base),transform var(--dur-base) var(--spring);z-index:30}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* 点赞即时反馈：数字 +1 弹跳 */
+.act .n{font-size:12px;color:var(--txt-3)}
+.act.on .n{color:var(--brand)}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.28)}100%{transform:scale(1)}}
+.act.pop svg{animation:pop var(--dur-slow) var(--spring)}
+/* 品牌加载动效（启动/缓冲） */
+.spin{width:26px;height:26px;border-radius:99px;border:3px solid rgba(255,255,255,.15);
+  border-top-color:var(--brand);animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* ============ ① 视觉对称：统一左右边距，所有区块贴同一对齐轴 ============ */
+.body{padding:0 18px}
+.tabbar{margin:0 18px 18px}
+.tv .body{padding:0 16px}
+.sheet{margin:0 16px 16px}
+.side{margin-left:0}
+
+/* ============ ② 进出场动画 ============ */
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page.on{animation:pageIn 260ms cubic-bezier(.2,.8,.2,1)}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+#grid .card{animation:cardIn 320ms cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes sheetUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+.sheet{animation:sheetUp 320ms cubic-bezier(.2,.8,.2,1)}
+@keyframes dlgIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.dlg.on .card{animation:dlgIn 220ms cubic-bezier(.34,1.4,.64,1)}
+@keyframes cmtIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.cmt{animation:cmtIn 260ms cubic-bezier(.2,.8,.2,1) backwards}
+
+/* ============ ③ 加载动画（品牌呼吸 + 整页骨架） ============ */
+.brandload{display:flex;flex-direction:column;align-items:center;gap:16px;padding:36px 0}
+.brandload .logo{width:56px;height:56px;border-radius:16px;overflow:hidden;
+  animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.88}50%{transform:scale(1.07);opacity:1}}
+.brandload .bar{width:140px;height:3px;border-radius:2px;background:rgba(255,255,255,.12);
+  overflow:hidden;position:relative}
+.brandload .bar i{position:absolute;top:0;bottom:0;width:40%;border-radius:2px;background:var(--brand);
+  animation:slide 1.1s ease-in-out infinite}
+@keyframes slide{0%{left:-40%}100%{left:100%}}
+.skgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.skcard{aspect-ratio:16/9;border-radius:8px;background:linear-gradient(90deg,#1A1A22,#24242E,#1A1A22);
+  background-size:200% 100%;animation:sk 1.3s infinite}
+.skline{height:14px;border-radius:6px;background:linear-gradient(90deg,#1A1A22,#24242E,#1A1A22);
+  background-size:200% 100%;animation:sk 1.3s infinite}
+/* ============ 分类 chips / 热搜榜 / 搜索页 ============ */
+.chips{display:flex;gap:8px;align-items:center;overflow:hidden;padding:2px 0 10px}
+.chip{height:36px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,.08);
+  border:2px solid transparent;display:flex;align-items:center;font-size:14px;color:var(--txt-2);
+  white-space:nowrap;cursor:pointer}
+.chip.focus{border-color:var(--brand);color:#fff;background:rgba(255,255,255,.12)}
+.chip.on{color:#fff;background:rgba(254,44,85,.18)}
+/* 热搜榜 */
+.hotrow{display:flex;align-items:center;gap:12px;height:52px;padding:0 12px;border-radius:var(--r-ctrl);
+  border:2px solid transparent;cursor:pointer}
+.hotrow.focus{border-color:var(--brand);background:rgba(255,255,255,.05)}
+.hotrow .rk{width:22px;text-align:center;font-size:16px;color:var(--txt-3);font-weight:600;flex:none}
+.hotrow.top3 .rk{color:var(--brand)}
+.hotrow .ht{flex:1;min-width:0;font-size:16px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hotrow .hv{font-size:13px;color:var(--txt-3);flex:none;font-variant-numeric:tabular-nums}
+.hotrow .tag{font-size:11px;line-height:16px;padding:0 5px;border-radius:4px;flex:none}
+.hotrow .tag.new{background:rgba(254,44,85,.9);color:#fff}
+.hotrow .tag.up{background:rgba(129,199,132,.18);color:#81C784}
+/* 搜索页 */
+.sbox{display:flex;align-items:center;gap:10px;height:52px;border-radius:var(--r-ctrl);
+  background:rgba(255,255,255,.06);border:2px solid var(--brand);padding:0 14px}
+.sbox svg{width:20px;height:20px;fill:var(--txt-2);flex:none}
+.sbox .kw{flex:1;font-size:16px;color:#fff}
+.histchip{height:34px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.07);
+  border:1px solid var(--hairline);display:flex;align-items:center;font-size:13px;color:var(--txt-2);
+  white-space:nowrap;cursor:pointer}
+/* ============ 电视端屏幕键盘（遥控器输入） ============ */
+.kb{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:var(--r-panel);
+  background:rgba(20,20,26,.94);border:1px solid var(--glass-edge);margin:0 16px 16px}
+.cand{display:flex;gap:8px;align-items:center;padding-bottom:2px;overflow:hidden}
+.cand .cw{height:44px;padding:0 18px;border-radius:10px;background:rgba(255,255,255,.08);
+  border:2px solid transparent;display:flex;align-items:center;font-size:18px;color:#fff;white-space:nowrap}
+.cand .cw.focus{border-color:var(--brand);background:rgba(255,255,255,.14)}
+.krow{display:flex;gap:6px;justify-content:center}
+.key{height:48px;min-width:52px;padding:0 12px;border-radius:10px;background:rgba(255,255,255,.10);
+  border:2px solid transparent;display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:#fff;cursor:pointer;flex:none}
+.key.focus{border-color:var(--brand);background:rgba(255,255,255,.16)}
+.key.wide{min-width:150px}
+.key.fn{background:rgba(255,255,255,.06);color:var(--txt-2);font-size:15px}
+.key.primary{background:var(--brand);border-color:rgba(255,255,255,.35);color:#fff;font-weight:600;min-width:120px}
+.kbhint{font-size:12px;color:var(--txt-3);text-align:center;padding-top:2px}
+/* ============ 电视端设置页（左列表 + 右面板，标准 TV 设置范式） ============ */
+.settings{display:flex;gap:14px;padding:0 16px 16px;min-height:300px}
+.setnav{width:150px;flex:none;display:flex;flex-direction:column;gap:4px}
+.setnav .sn{height:48px;border-radius:10px;display:flex;align-items:center;gap:10px;padding:0 12px;
+  font-size:16px;color:var(--txt-2);border:2px solid transparent;cursor:pointer}
+.setnav .sn.on{color:#fff;background:rgba(255,255,255,.06)}
+.setnav .sn.focus{border-color:var(--brand);color:#fff}
+.setnav .sn svg{width:20px;height:20px;fill:currentColor;flex:none}
+.setpane{flex:1;min-width:0}
+.setrow{display:flex;align-items:center;gap:12px;height:56px;padding:0 14px;border-top:1px solid var(--hairline);
+  border-radius:10px;border-left:2px solid transparent;border-right:2px solid transparent;border-bottom:0}
+.setrow:first-child{border-top:0}
+.setrow.focus{background:rgba(255,255,255,.05);border-left-color:var(--brand)}
+.setrow .sl{font-size:16px;color:#fff}
+.setrow .sd{font-size:13px;color:var(--txt-3);margin-top:2px}
+.setrow .sv{margin-left:auto;font-size:15px;color:var(--txt-2)}
+.setrow .sv.ok{color:#81C784}
+.setrow .sv.bad{color:#F06292}
+/* 二维码块 */
+.qr{width:120px;height:120px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.qr div{width:96px;height:96px;background:
+  repeating-linear-gradient(90deg,#000 0 6px,#fff 6px 12px),
+  repeating-linear-gradient(0deg,#000 0 6px,transparent 6px 12px);
+  background-blend-mode:multiply}
+/* 实时联想行（三段式：键盘/联想/结果） */
+.sugwrap{padding:8px 0 10px}
+.sugtitle{font-size:13px;color:var(--txt-3);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.sugtitle .dotp{width:6px;height:6px;border-radius:9px;background:var(--brand);animation:breathe 1.4s infinite}
+.sugrow{display:flex;gap:8px;flex-wrap:wrap}
+.sug{height:40px;padding:0 16px;border-radius:odd;border-radius:10px;background:rgba(255,255,255,.06);
+  border:2px solid transparent;display:flex;align-items:center;font-size:15px;color:var(--txt-2);cursor:pointer}
+.sug.focus{border-color:var(--brand);color:#fff;background:rgba(255,255,255,.12)}
+.phonehint{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-3);padding:6px 0 0}
+.phonehint svg{width:16px;height:16px;fill:var(--txt-3)}
+/* ---------- 底部 Tab ---------- */
+.tabbar{margin:var(--s3) var(--s4) var(--s4);height:64px;border-radius:var(--r-panel);position:relative;
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));
+  border:1px solid var(--glass-edge);backdrop-filter:blur(9px) saturate(140%);display:flex;align-items:center}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--txt-2);cursor:pointer;transition:color var(--dur-base),transform var(--dur-fast) var(--spring)}
+.tab svg{width:20px;height:20px;fill:currentColor}
+.sitem svg{width:20px;height:20px;fill:currentColor}
+.tab:active{transform:scale(.9)}
+.tab.on{color:var(--brand);font-weight:600}
+.indicator{position:absolute;bottom:6px;height:3px;border-radius:2px;background:var(--brand);width:11%;
+  transition:transform var(--dur-slow) var(--spring)}
+/* ---------- 电视端 ---------- */
+.side{width:76px;flex:none;display:flex;flex-direction:column;gap:4px;padding:6px;border-radius:var(--r-ctrl);background:var(--surface);border:1px solid var(--hairline)}
+.sitem{height:52px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;color:var(--txt-2);border:2px solid transparent;cursor:pointer;transition:color var(--dur-fast),border-color var(--dur-fast),background var(--dur-fast)}
+.sitem.on{color:#fff;background:rgba(255,255,255,.06);border-color:var(--brand)}
+.tv .grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.card{min-width:0;border-radius:var(--r-ctrl);background:transparent;border:2px solid transparent;
+  display:flex;flex-direction:column;gap:3px;padding:2px;font-size:14px;color:var(--txt-2);
+  transition:transform var(--dur-fast) var(--spring),border-color var(--dur-fast)}
+.card.focus{border-color:var(--brand);box-shadow:none;transform:scale(1.03);color:#fff}
+.cover{position:relative;width:100%;min-width:0;aspect-ratio:16/9;border-radius:8px;
+  background:linear-gradient(135deg,#20202C,#2C2C3A)}
+.dur{position:absolute;right:5px;bottom:5px;background:rgba(0,0,0,.72);border-radius:4px;
+  padding:0 5px;font-size:11px;line-height:16px;color:#fff}
+.ct{display:none}
+.cm{display:none}
+.infobar{margin-top:8px;padding:10px 12px;border-radius:var(--r-ctrl);background:var(--surface);
+  border:1px solid var(--hairline);display:flex;align-items:center;gap:12px}
+.infobar .it{font-size:17px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.infobar .im{font-size:14px;color:var(--txt-2);white-space:nowrap;flex:none}
+.tv .t1{font-size:24px}.tv .t2{font-size:18px;color:var(--txt-2)}
+/* ---------- 命令日志 ---------- */
+.log{width:360px;max-height:780px;overflow:auto;background:var(--surface);border:1px solid var(--hairline);
+  border-radius:var(--r-ctrl);padding:var(--s3);font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:1.7}
+.log h3{font-size:12px;color:var(--txt-2);font-family:inherit;margin-bottom:8px;font-weight:500}
+.log .line{color:#64B5F6;word-break:break-all}
+.log .line b{color:var(--brand)}
+.log .tip{color:var(--txt-3);margin-top:10px;font-family:inherit;line-height:1.7}
+.kbd{background:rgba(255,255,255,.08);border-radius:5px;padding:1px 5px}
+.guide{position:absolute;top:0;bottom:0;width:1px;background:rgba(90,200,255,.30);pointer-events:none}
+</style>
+</head>
+<body>
+
+<!-- ===================== 手机端 ===================== -->
+<div class="stage">
+  <h2>手机遥控 · 可点击</h2>
+  <div class="device" id="phone">
+    <div class="topbar"><div class="brand" style="flex:1"><svg viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#0E0E13"/><g transform="rotate(-20 24 24)"><rect x="17" y="9" width="14" height="30" rx="5" fill="#fff"/><circle cx="24" cy="16.4" r="3.6" fill="#0E0E13"/><circle cx="22" cy="25.2" r="1.5" fill="#0E0E13"/><circle cx="26" cy="25.2" r="1.5" fill="#0E0E13"/><circle cx="22" cy="30.8" r="1.5" fill="#0E0E13"/><circle cx="26" cy="30.8" r="1.5" fill="#0E0E13"/></g></svg><div><div class="nm" id="pageTitle">遥控</div><div class="sub" id="phoneStatus">192.168.1.7 · v2.22</div></div></div><i class="dot on" id="phoneDot"></i>
+      <div class="more" id="moreBtn" style="cursor:pointer;display:flex"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg></div></div>
+    <div class="body">
+      <div class="menu" id="moreMenu">
+        <div class="mi" data-cmd="checkupdate"><svg viewBox="0 0 24 24"><path d="M5 19h14v2H5zM12 3v10l4-4 1.4 1.4L12 15.8 6.6 10.4 8 9l4 4V3z"/></svg>检查更新</div>
+        <div class="mi" data-cmd="settings"><svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.9 4c0 .6-.1 1.2-.2 1.7l2 1.5-2 3.4-2.3-1a7 7 0 0 1-1.5.9l-.3 2.5h-4l-.3-2.5a7 7 0 0 1-1.5-.9l-2.3 1-2-3.4 2-1.5a8 8 0 0 1 0-3.4l-2-1.5 2-3.4 2.3 1a7 7 0 0 1 1.5-.9L13.6 4h4l.3 2.5a7 7 0 0 1 1.5.9l2.3-1 2 3.4-2 1.5c.1.5.2 1.1.2 1.7z"/></svg>电视设置页</div>
+        <div class="mi" data-say="断开连接"><svg viewBox="0 0 24 24"><path d="M8 13h8v-2H8zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10zM7 7h4v1.9H7a3.1 3.1 0 0 0 0 6.2h4V17H7a5 5 0 0 0 0-10z"/></svg>断开连接</div>
+      </div>
+
+      <!-- 遥控页 -->
+      <div class="page on" data-page="0">
+        <div class="pad" id="pad">
+          <span class="corner c1"></span><span class="corner c2"></span>
+          <span class="corner c3"></span><span class="corner c4"></span>
+          <span class="fly" id="fly"></span>
+          <div class="hint">拖动试试：上下滑 = 切视频 · 左右滑 = 翻页<br>轻点 = 暂停 · 双击 = 点赞</div>
+        </div>
+        <div class="row">
+          <div class="cbtn" data-cmd="prev"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></div>
+          <div class="cbtn primary" data-cmd="toggle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+          <div class="cbtn" data-cmd="next"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></div>
+        </div>
+      </div>
+
+      <!-- 设备页：主角=已连接设备卡片；手动添加/配对码/忘记设备 收进 ⋮ 二级菜单 -->
+      <div class="page" data-page="1">
+        <div class="devcard">
+          <div class="tv"><svg class="ico" viewBox="0 0 24 24"><path d="M3 5h18v11H3zM8 19h8v-2H8z"/></svg></div>
+          <div><div class="nm">客厅电视</div><div class="mm">192.168.1.7 · v2.22</div></div>
+          <span style="margin-left:auto;width:10px;height:10px;border-radius:99px;background:var(--ok)"></span>
+        </div>
+        <div class="b1" data-say="扫描设备"><svg viewBox="0 0 24 24"><path d="M17.65 6.35A8 8 0 1 0 19.73 14h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"/></svg> 扫描设备</div>
+        <div class="group">
+          <div class="gh">已发现（1）</div>
+          <div class="grow" data-say="连接 卧室盒子"><svg class="ico" viewBox="0 0 24 24"><path d="M3 5h18v11H3zM8 19h8v-2H8z"/></svg>卧室盒子<span class="sub">192.168.1.9</span></div>
+        </div>
+        <div class="state"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zm2 10v4h12v-4h-3a3 3 0 0 1-6 0z"/></svg><div class="st">没有更多设备</div><div>确认手机与电视在同一 WiFi</div></div>
+      </div>
+
+      <!-- 工具页：主功能=搜索 / 推送；维护类（更新/设置/APK）全部收进 ⋮ -->
+      <div class="page" data-page="2">
+        <div class="inp"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg><input placeholder="搜索视频关键词"><span class="clear">×</span></div>
+        <div class="b1" data-cmd="search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg> 在电视上搜索</div>
+        <div class="inp"><svg viewBox="0 0 24 24"><path d="M8 13h8v-2H8zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10zM7 7h4v1.9H7a3.1 3.1 0 0 0 0 6.2h4V17H7a5 5 0 0 0 0-10z"/></svg><input placeholder="抖音分享链接 / aweme_id"><span class="clear">×</span></div>
+        <div class="b2" data-cmd="push"><svg viewBox="0 0 24 24"><path d="M3 20l18-8L3 4v6l12 2-12 2z"/></svg> 推送到电视</div>
+        <div class="state"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zm2 10v4h12v-4h-3a3 3 0 0 1-6 0z"/></svg><div class="st">用手机找视频，一键推到电视</div><div>支持分享链接或作品 ID</div></div>
+      </div>
+
+      <!-- 设置页：分组卡片（明度差分层）+ 自绘开关 + 关于行 -->
+      <div class="page" data-page="3">
+        <div class="group">
+          <div class="gh">连接</div>
+          <div class="grow"><svg class="ico" viewBox="0 0 24 24"><path d="M7 5h10v14H7zM4 8h2v8H4zm14 0h2v8h-2z"/></svg>触控反馈震动<div class="sw2 on" data-sw2 style="margin-left:auto"><i></i></div></div>
+          <div class="grow"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v3H5v12h14V10h-2V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3z"/></svg>遥控锁定（防误触）<div class="sw2" data-sw2 id="lockSw" style="margin-left:auto"><i></i></div></div>
+        </div>
+        <div class="group">
+          <div class="gh">手势映射（点一下循环切换）</div>
+          <div class="grow" data-say="手势映射-单击">单击<span class="val">暂停/播放</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="grow" data-say="手势映射-双击">双击<span class="val">点赞</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="grow" data-say="手势映射-上下滑">上下滑<span class="val">下一条</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+        <div class="group">
+          <div class="gh">关于</div>
+          <div class="grow"><svg viewBox="0 0 48 48" style="width:26px;height:26px;border-radius:8px;flex:none"><rect width="48" height="48" rx="12" fill="#0E0E13"/><g transform="rotate(-20 24 24)"><rect x="17" y="9" width="14" height="30" rx="5" fill="#fff"/><circle cx="24" cy="16.4" r="3.6" fill="#0E0E13"/><circle cx="22" cy="25.2" r="1.5" fill="#0E0E13"/><circle cx="26" cy="25.2" r="1.5" fill="#0E0E13"/><circle cx="22" cy="30.8" r="1.5" fill="#0E0E13"/><circle cx="26" cy="30.8" r="1.5" fill="#0E0E13"/></g></svg><div><div style="font-size:14px">DTV 遥控器</div><div style="font-size:11px;color:var(--txt-3);margin-top:2px">v3.05 · 与电视端 DTV 配套</div></div><span class="sub"></span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div>
+        </div>
+      </div>
+
+      <!-- 方向页 -->
+      <div class="page" data-page="4">
+        <div class="dpad">
+          <div class="dr">
+            <div class="kbtn" data-cmd="back"><svg viewBox="0 0 24 24"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg></div>
+            <div class="kbtn" data-cmd="dpad_up"><svg viewBox="0 0 24 24"><path d="M12 5l8 12H4z"/></svg></div>
+            <div class="kbtn" data-cmd="menu"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3zm0-5h18v-2H3zm0-7v2h18V6z"/></svg></div>
+          </div>
+          <div class="dr">
+            <div class="kbtn" data-cmd="dpad_left"><svg viewBox="0 0 24 24"><path d="M5 12l12-8v16z"/></svg></div>
+            <div class="kbtn primary" data-cmd="ok"><svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></div>
+            <div class="kbtn" data-cmd="dpad_right"><svg viewBox="0 0 24 24"><path d="M19 12L7 4v16z"/></svg></div>
+          </div>
+          <div class="dr">
+            <div class="kbtn" data-cmd="dpad_down"><svg viewBox="0 0 24 24"><path d="M12 19L4 7h16z"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabbar" id="tabbar">
+      <div class="tab on"><svg viewBox="0 0 24 24"><path d="M12 2l3 5h-2v4h4V9l5 3-5 3v-2h-4v4h2l-3 5-3-5h2v-4H7v2l-5-3 5-3v2h4V7H9z"/></svg><span>遥控</span></div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M3 5h18v11H3zM8 19h8v-2H8z"/></svg><span>设备</span></div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M4 6h9v2H4zm13 0h3v2h-3zM4 11h3v2H4zm7 0h9v2h-9zM4 16h11v2H4zm15 0h1v2h-1z"/></svg><span>工具</span></div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.9 4c0 .6-.1 1.2-.2 1.7l2 1.5-2 3.4-2.3-1a7 7 0 0 1-1.5.9l-.3 2.5h-4l-.3-2.5a7 7 0 0 1-1.5-.9l-2.3 1-2-3.4 2-1.5a8 8 0 0 1 0-3.4l-2-1.5 2-3.4 2.3 1a7 7 0 0 1 1.5-.9L13.6 4h4l.3 2.5a7 7 0 0 1 1.5.9l2.3-1 2 3.4-2 1.5c.1.5.2 1.1.2 1.7z"/></svg><span>设置</span></div>
+      <div class="tab"><svg viewBox="0 0 24 24"><path d="M12 2l3 5h-2v4h4V9l5 3-5 3v-2h-4v4h2l-3 5-3-5h2v-4H7v2l-5-3 5-3v2h4V7H9z"/></svg><span>方向</span></div>
+      <div class="indicator" id="ind"></div>
+    </div>
+    <div class="guide" style="left:16px"></div><div class="guide" style="right:16px"></div>
+  </div>
+  <h2>拖动触控板 / 点按钮 / 切 Tab —— 右侧日志会显示实际指令</h2>
+</div>
+
+<!-- ===================== 电视端 ===================== -->
+<div class="stage">
+  <h2>电视端 · 按 ← ↑ ↓ → 移动焦点（← 进侧边栏），Enter = OK</h2>
+  <div class="device tv" id="tv">
+    <div class="topbar" style="padding:10px 16px"><span style="flex:1;font-size:15px">客厅电视 · 192.168.1.7</span><i class="dot on"></i></div>
+    <div style="flex:1;display:flex;gap:10px;padding:0 16px;min-height:0">
+      <div class="side" id="side" style="width:88px"><div class="sidehead"><svg viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#0E0E13"/><path d="M31 9v21.2a7.6 7.6 0 1 1-4.2-6.8V9z" fill="#fff"/><path d="M31 9c3.2 0 6.3 1.6 8.4 4.2v6.3C37.3 16.8 34.2 15 31 15z" fill="#fff"/></svg><span class="nm">DTV</span></div>
+        <div class="sitem on"><svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg><span>推荐</span></div>
+        <div class="sitem"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-8.5C1 9 3 6 6.5 6c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 6 23 9 21 12.5 19 16.5 12 21 12 21z"/></svg><span>关注</span></div>
+        <div class="sitem"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg><span>搜索</span></div>
+        <div class="sitem"><svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.9 4c0 .6-.1 1.2-.2 1.7l2 1.5-2 3.4-2.3-1a7 7 0 0 1-1.5.9l-.3 2.5h-4l-.3-2.5a7 7 0 0 1-1.5-.9l-2.3 1-2-3.4 2-1.5a8 8 0 0 1 0-3.4l-2-1.5 2-3.4 2.3 1a7 7 0 0 1 1.5-.9L13.6 4h4l.3 2.5a7 7 0 0 1 1.5.9l2.3-1 2 3.4-2 1.5c.1.5.2 1.1.2 1.7z"/></svg><span>设置</span></div>
+      </div>
+      <div style="flex:1;min-width:0;overflow:hidden">
+        <div class="grid" id="grid" style="grid-template-columns:repeat(5,minmax(0,1fr));gap:8px">
+          <div class="card"><div class="cover c1"><span class="badge gray">合集</span><span class="dur">01:23</span></div><div class="ct">焦点态：2dp 品牌描边</div><div class="cm">@作者 · 12.3万播放</div></div>
+          <div class="card"><div class="cover c2"><span class="dur">00:58</span><span class="plays"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>12.3万</span></div><div class="ct">这是一个很长的标题写不完就省略号</div><div class="cm">@作者 · 8.1万播放</div></div>
+          <div class="card"><div class="cover c3"><span class="badge">新</span><span class="dur">03:07</span><span class="watched"><i></i></span></div><div class="ct">标题单行不换行</div><div class="cm">@作者 · 45万播放</div></div>
+          <div class="card"><div class="cover c4"><span class="badge gray">合集</span><span class="dur">00:31</span></div><div class="ct">短标题</div><div class="cm">@作者 · 2.2万播放</div></div>
+          <div class="card"><div class="cover c5"><span class="dur">12:40</span><span class="plays"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>12.3万</span></div><div class="ct">合集 · 第 3 集</div><div class="cm">@作者 · 120万播放</div></div>
+          <div class="card"><div class="cover c6"><span class="badge">新</span><span class="dur">02:15</span><span class="watched"><i></i></span></div><div class="ct">标题超长超长超长超长超长省略</div><div class="cm">@作者 · 9千播放</div></div>
+          <div class="card"><div class="cover c1"><span class="badge gray">合集</span><span class="dur">00:44</span></div><div class="ct">一行能写完就写完</div><div class="cm">@作者 · 3.4万播放</div></div>
+          <div class="card"><div class="cover c2"><span class="dur">05:02</span><span class="plays"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>12.3万</span></div><div class="ct">测试标题</div><div class="cm">@作者 · 1.1万播放</div></div>
+          <div class="card"><div class="cover c3"><span class="badge">新</span><span class="dur">00:19</span><span class="watched"><i></i></span></div><div class="ct">短视频</div><div class="cm">@作者 · 6.6万播放</div></div>
+          <div class="card"><div class="cover c4"><span class="badge gray">合集</span><span class="dur">08:33</span></div><div class="ct">较长标题在这里被截断处理</div><div class="cm">@作者 · 22万播放</div></div>
+        </div>
+        <div class="infobar"><span class="it" id="ibT">—</span><span class="im" id="ibM"></span></div>
+      </div>
+    </div>
+    <div class="guide" style="left:16px"></div><div class="guide" style="right:16px"></div>
+  </div>
+</div>
+
+<!-- ===================== 电视端内页 ===================== -->
+<div class="stage">
+  <h2>电视端 · 视频暂停菜单（重做：原来底栏 10 个文字按钮堆一起）</h2>
+  <div class="device tv" style="height:auto;padding-bottom:0">
+    <div class="topbar" style="padding:10px 16px"><span style="flex:1;font-size:15px">客厅电视 · 播放中</span><i class="dot on"></i></div>
+    <div style="flex:1;min-height:120px;margin:0 12px;border-radius:var(--r-ctrl);background:linear-gradient(135deg,#181820,#242432);display:flex;align-items:center;justify-content:center;color:var(--txt-3);font-size:14px">视频画面（已暂停）</div>
+    <div class="sheet">
+      <div class="stitle">这是一个很长的视频标题写不完就省略号<span class="au">@作者名</span><span class="badge" style="position:static;margin-left:6px">手机推送</span></div>
+      <div class="prow"><span class="tt">01:23</span><div class="pbar"><i></i><b></b></div><span class="tt">03:36</span></div>
+      <div style="font-size:12px;color:var(--txt-3);margin:-4px 0 8px">上次看到 01:23，已自动续播 —— touchResumeAlive 原有能力</div>
+      <div class="acts" style="margin-bottom:8px">
+        <div class="seg" style="max-width:260px"><div class="on">自动连播</div><div>单集循环</div></div>
+        <div style="font-size:12px;color:var(--txt-3)">播放模式（原实现有：连播 / 单集循环）</div>
+      </div>
+      <div class="acts">
+        <div class="act focus"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>继续播放</div>
+        <div class="act on"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-8.5C1 9 3 6 6.5 6c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 6 23 9 21 12.5 19 16.5 12 21 12 21z"/></svg>赞</div>
+        <div class="act"><svg viewBox="0 0 24 24"><path d="M12 2l3 6.6 7.2.8-5.3 4.9 1.4 7.1L12 18l-6.3 3.4 1.4-7.1L1.8 9.4 9 8.6z"/></svg>收藏</div>
+        <div class="act"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>弹幕</div>
+        <div class="divv"></div>
+        <div class="acts2">
+          <div class="mini" title="倍速"><svg viewBox="0 0 24 24"><path d="M4 18h6v-2H4zm0-5h10v-2H4zm0-7v2h16V6z"/></svg></div>
+          <div class="mini" title="线路"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg></div>
+          <div class="mini" title="画面比例"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zm2 2v10h14V7z"/></svg></div>
+          <div class="mini" title="解码引擎"><svg viewBox="0 0 24 24"><path d="M9 3h6v3H9zM3 9h3v6H3zm15 0h3v6h-3zM9 18h6v3H9z"/></svg></div>
+          <div class="mini" title="更多"><svg viewBox="0 0 24 24"><path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h2>L1=继续播放 · L2=赞/藏/弹幕（图标+文字）· L3=倍速/线路/比例/引擎（纯图标）</h2>
+  <h2>另有原有能力需保留：控制栏自动隐藏（按 OK 唤出）· 遥控数字键 5=点赞 · 后台播放 · 引擎/线路为技术项</h2>
+</div>
+
+<div class="stage">
+  <h2>电视端 · 评论区</h2>
+  <div class="device tv" style="height:auto;padding-bottom:16px">
+    <div class="topbar" style="padding:10px 16px"><span style="flex:1;font-size:15px">评论 1.2万</span><i class="dot on"></i></div>
+    <div style="padding:0 16px">
+      <div class="group" style="padding:4px 14px">
+        <div class="cmt focus"><div class="ava"></div><div><div class="cn">用户昵称</div><div class="ct2">这条评论被选中了，焦点态用 2dp 品牌描边，不发光</div><div class="cl"><span>3 小时前</span><span>·</span><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-8.5C1 9 3 6 6.5 6c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 6 23 9 21 12.5 19 16.5 12 21 12 21z"/></svg><span>128</span></div></div></div>
+        <div class="cmt"><div class="ava"></div><div><div class="cn">另一个用户</div><div class="ct2">普通评论，没有选中时保持安静</div><div class="cl"><span>5 小时前</span></div></div></div>
+        <div class="cmt"><div class="ava"></div><div><div class="cn">第三个用户</div><div class="ct2">长评论文本会自动换行，但同一屏只允许一个焦点</div><div class="cl"><span>昨天</span><span>·</span><span>36</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stage">
+  <h2>电视端 · 作者主页</h2>
+  <div class="device tv" style="height:auto;padding-bottom:16px">
+    <div style="padding:6px 16px 0">
+      <div class="prof">
+        <div class="ava"></div>
+        <div><div class="pnm">作者昵称</div><div class="pst">粉丝 12.3万 · 作品 86</div></div>
+        <div class="follow focus">关注</div>
+      </div>
+      <div class="seg" style="max-width:280px"><div class="on">作品</div><div>喜欢</div></div>
+      <div class="grid" style="grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px">
+        <div class="card"><div class="cover c5"><span class="dur">01:23</span><span class="plays"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>12.3万</span></div></div>
+        <div class="card focus"><div class="cover c6"><span class="badge">新</span><span class="dur">02:10</span><span class="watched"><i></i></span></div></div>
+        <div class="card"><div class="cover c1"><span class="badge gray">合集</span><span class="dur">00:45</span></div></div>
+        <div class="card"><div class="cover c2"><span class="dur">05:02</span><span class="plays"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>12.3万</span></div></div>
+        <div class="card"><div class="cover c3"><span class="badge">新</span><span class="dur">00:31</span><span class="watched"><i></i></span></div></div>
+      </div>
+      <div class="infobar"><span class="it">焦点项标题显示在信息栏</span><span class="im">@作者昵称 · 8.1万播放</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="stage">
+  <h2>电视端 · 点赞 / 收藏</h2>
+  <div class="device tv" style="height:auto;padding-bottom:16px">
+    <div style="padding:6px 16px 0">
+      <div class="seg" style="max-width:320px"><div class="on">点赞 128</div><div>收藏 46</div></div>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+        <div class="vrow focus"><div class="th"><span class="badge gray">合集</span><span class="dur">01:23</span></div><div style="min-width:0"><div class="vt">焦点项：视频标题单行省略号处理</div><div class="vm">@作者 · 12.3万播放 · 3 天前</div></div></div>
+        <div class="vrow"><div class="th"><span class="dur">02:10</span><span class="plays"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>12.3万</span></div><div style="min-width:0"><div class="vt">普通列表项，安静不抢焦点</div><div class="vm">@作者 · 8.1万播放 · 1 周前</div></div></div>
+        <div class="vrow"><div class="th"><span class="badge">新</span><span class="dur">00:45</span><span class="watched"><i></i></span></div><div style="min-width:0"><div class="vt">很长的标题也会被省略号截断不换行</div><div class="vm">@作者 · 2.2万播放 · 2 周前</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 分类 / 热搜榜 / 搜索 ===================== -->
+<div class="stage">
+  <h2>电视端 · 分类（侧边栏一级 + 内容区分类 chips）</h2>
+  <div class="device tv" style="height:auto;padding-bottom:16px">
+    <div class="topbar" style="padding:10px 16px"><span style="flex:1;font-size:15px">客厅电视 · 分类</span><i class="dot on"></i></div>
+    <div style="display:flex;gap:10px;padding:0 16px">
+      <div class="side" style="width:88px">
+        <div class="sidehead"><svg viewBox="0 0 48 48" style="width:26px;height:26px;border-radius:8px"><rect width="48" height="48" rx="12" fill="#0E0E13"/><path d="M31 9v21.2a7.6 7.6 0 1 1-4.2-6.8V9z" fill="#fff"/><path d="M31 9c3.2 0 6.3 1.6 8.4 4.2v6.3C37.3 16.8 34.2 15 31 15z" fill="#fff"/></svg><span class="nm">DTV</span></div>
+        <div class="sitem"><svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg><span>推荐</span></div>
+        <div class="sitem"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9-8.5C1 9 3 6 6.5 6c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 6 23 9 21 12.5 19 16.5 12 21 12 21z"/></svg><span>关注</span></div>
+        <div class="sitem on"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg><span>分类</span></div>
+        <div class="sitem"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg><span>搜索</span></div>
+        <div class="sitem"><svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.9 4c0 .6-.1 1.2-.2 1.7l2 1.5-2 3.4-2.3-1a7 7 0 0 1-1.5.9l-.3 2.5h-4l-.3-2.5a7 7 0 0 1-1.5-.9l-2.3 1-2-3.4 2-1.5a8 8 0 0 1 0-3.4l-2-1.5 2-3.4 2.3 1a7 7 0 0 1 1.5-.9L13.6 4h4l.3 2.5a7 7 0 0 1 1.5.9l2.3-1 2 3.4-2 1.5c.1.5.2 1.1.2 1.7z"/></svg><span>设置</span></div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="chips">
+          <div class="chip on">推荐</div><div class="chip focus">美食</div><div class="chip">旅行</div>
+          <div class="chip">游戏</div><div class="chip">音乐</div><div class="chip">影视</div><div class="chip">知识</div>
+        </div>
+        <div class="grid" style="grid-template-columns:repeat(5,minmax(0,1fr));gap:8px"><div class="card"><div class="cover c1"><span class="dur">01:21</span></div></div><div class="card"><div class="cover c2"><span class="dur">02:22</span></div></div><div class="card"><div class="cover c3"><span class="dur">03:23</span></div></div><div class="card"><div class="cover c4"><span class="dur">04:24</span></div></div><div class="card"><div class="cover c5"><span class="dur">05:25</span></div></div></div>
+      </div>
+    </div>
+  </div>
+  <h2>分类用「chips 横向焦点」，比再开一列侧栏更省空间，也不和一级侧栏重复</h2>
+</div>
+
+<div class="stage">
+  <h2>电视端 · 热搜榜</h2>
+  <div class="device tv" style="height:auto;padding-bottom:16px">
+    <div class="topbar" style="padding:10px 16px"><span style="flex:1;font-size:15px">热搜榜 · 每小时更新</span><i class="dot on"></i></div>
+    <div style="padding:0 16px">        <div class="hotrow top3 focus"><span class="rk">1</span><span class="ht">某某话题冲上热搜第一，网友吵翻了</span><span class="tag new">新</span><span class="hv">3284.5万</span></div>
+        <div class="hotrow top3"><span class="rk">2</span><span class="ht">这个视频我看了十遍还是想笑</span><span class="tag up">↑</span><span class="hv">2911.2万</span></div>
+        <div class="hotrow top3"><span class="rk">3</span><span class="ht">年度最佳旅行路线盘点</span><span class="hv">1876.9万</span></div>
+        <div class="hotrow"><span class="rk">4</span><span class="ht">厨房小白也能做的三道菜</span><span class="hv">1203.4万</span></div>
+        <div class="hotrow"><span class="rk">5</span><span class="ht">冷门但好用的效率工具</span><span class="tag new">新</span><span class="hv">986.1万</span></div>
+        <div class="hotrow"><span class="rk">6</span><span class="ht">深夜 emo 歌单推荐</span><span class="hv">754.3万</span></div></div>
+  </div>
+  <h2>排名 1-3 用品牌色 · 热度值等宽数字右对齐 · 新/↑ 标签区分</h2>
+</div>
+
+<!-- ===================== 电视端设置 / 登录 ===================== --><!-- ===================== 电视端搜索（三段式，保留原实现精髓） ===================== -->
+<div class="stage">
+  <h2>电视端 · 搜索（三段式：键盘 / 实时联想 / 结果）—— 原实现就有，本次补回原型</h2>
+  <div class="device tv" style="height:auto;padding-bottom:16px">
+    <div style="padding:8px 16px 0">
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="kbtn" style="width:44px;height:44px" title="返回"><svg viewBox="0 0 24 24"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg></div>
+        <div class="sbox" style="flex:1"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg><span class="kw">meishi<span style="color:var(--brand)">|</span></span><span style="font-size:13px;color:var(--txt-3)">⌫</span></div>
+      </div>
+      <div class="phonehint"><svg viewBox="0 0 24 24"><path d="M7 2h10v20H7zm5 17a1.2 1.2 0 1 0 0 2.4A1.2 1.2 0 0 0 12 19z"/></svg>也可以用手机推送关键词（遥控器打字慢） —— tvPhoneHint，原实现已有</div>
+      <div class="sugwrap">
+        <div class="sugtitle"><span class="dotp"></span>猜你想搜（实时联想 · 防抖 320ms · 拼音自动纠错）</div>
+        <div class="sugrow">
+          <div class="sug focus">美食教程</div><div class="sug">美食做法</div>
+          <div class="sug">美食探店</div><div class="sug">美食 vlog</div><div class="sug">美食纪录片</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--txt-3);margin:4px 0 8px">结果 · 共 128 条</div>
+      <div class="grid" style="grid-template-columns:repeat(5,minmax(0,1fr));gap:8px">
+        <div class="card"><div class="cover c1"><span class="dur">01:23</span></div></div>
+        <div class="card focus"><div class="cover c2"><span class="dur">02:10</span></div></div>
+        <div class="card"><div class="cover c3"><span class="dur">00:45</span></div></div>
+        <div class="card"><div class="cover c4"><span class="dur">05:02</span></div></div>
+        <div class="card"><div class="cover c5"><span class="dur">00:31</span></div></div>
+      </div>
+    </div>
+  </div>
+  <h2>联想词有才显示、无则收起（两段式）；下方结果实时刷新</h2>
+</div>
+
+<div class="stage">
+  <h2>电视端 · 搜索页（输入为空：本地历史 + 热搜榜 合并，点词即搜）</h2>
+  <div class="device tv" style="height:auto;padding-bottom:16px">
+    <div style="padding:8px 16px 0">
+      <div class="sbox" style="border-color:var(--hairline);background:rgba(255,255,255,.04)"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg><span class="kw" style="color:var(--txt-3)">输入关键词，或直接选下面的话题</span></div>
+      <div style="font-size:13px;color:var(--txt-3);margin:14px 0 6px">搜索历史（本地）</div>
+      <div class="sugrow"><div class="chip">美食教程</div><div class="chip">旅行 vlog</div><div class="chip">游戏集锦</div></div>
+      <div style="font-size:13px;color:var(--txt-3);margin:14px 0 6px">热搜榜（匿名接口）</div>
+      <div>
+        <div class="hotrow top3 focus"><span class="rk">1</span><span class="ht">某某话题冲上热搜第一</span><span class="tag new">新</span><span class="hv">3284.5万</span></div>
+        <div class="hotrow top3"><span class="rk">2</span><span class="ht">这个视频我看了十遍</span><span class="hv">2911.2万</span></div>
+        <div class="hotrow top3"><span class="rk">3</span><span class="ht">年度最佳旅行路线</span><span class="hv">1876.9万</span></div>
+      </div>
+    </div>
+  </div>
+  <h2>历史先立即显示（快），热搜异步合入 —— 原实现就是这个策略</h2>
+</div>
+
+<!-- ===================== 电视端设置 / 登录 ===================== -->
+
+
+<div class="stage">
+  <h2>电视端 · 设置页（左列表 + 右面板）</h2>
+  <div class="device tv" style="height:auto;padding-bottom:0">
+    <div class="topbar" style="padding:10px 16px"><span style="flex:1;font-size:15px">设置</span><i class="dot on"></i></div>
+    <div class="settings">
+      <div class="setnav">
+        <div class="sn on focus"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v2H5v13h14V9h-2V7a5 5 0 0 0-5-5zm-3 7V7a3 3 0 1 1 6 0v2z"/></svg>账号与凭据</div>
+        <div class="sn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>播放</div>
+        <div class="sn"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>弹幕</div>
+        <div class="sn"><svg viewBox="0 0 24 24"><path d="M7 5h10v14H7zM4 8h2v8H4zm14 0h2v8h-2z"/></svg>手机遥控</div>
+        <div class="sn"><svg viewBox="0 0 24 24"><path d="M12 3v10l4-4 1.4 1.4L12 15.8 6.6 10.4 8 9l4 4V3zM5 19h14v2H5z"/></svg>更新与关于</div>
+      </div>
+      <div class="setpane">
+        <div class="setrow focus"><div><div class="sl">抖音凭据</div><div class="sd">决定能否看关注流、点赞收藏同步</div></div><span class="sv bad">未导入</span></div>
+        <div class="setrow"><div><div class="sl">扫码导入（推荐）</div><div class="sd">手机扫码后在手机端推送凭据</div></div><span class="sv">›</span></div>
+        <div class="setrow"><div><div class="sl">WebProtect 签名</div><div class="sd">点赞/收藏等写操作需要</div></div><span class="sv bad">缺失</span></div>
+        <div class="setrow"><div><div class="sl">浏览器 UA</div></div><span class="sv">已设置</span></div>
+        <div class="setrow"><div><div class="sl">清空凭据</div></div><span class="sv">›</span></div>
+      </div>
+    </div>
+  </div>
+  <h2>账号组的四项状态一眼可见（凭据/签名/UA/清空）—— 红色=缺失，绿色=就绪</h2>
+</div>
+
+<div class="stage">
+  <h2>电视端 · 登录 / 凭据导入页（能用的前提）</h2>
+  <div class="device tv" style="height:auto;padding-bottom:16px">
+    <div class="topbar" style="padding:10px 16px"><span style="flex:1;font-size:15px">导入抖音凭据</span><i class="dot"></i></div>
+    <div style="display:flex;gap:20px;padding:4px 16px 0;align-items:flex-start">
+      <div style="flex:none;text-align:center">
+        <div class="qr"><div></div></div>
+        <div style="font-size:13px;color:var(--txt-2);margin-top:8px">手机扫码</div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="setrow" style="border:0;padding-left:0"><div><div class="sl">方式一：手机遥控推送（推荐）</div><div class="sd">手机端已导入过凭据时，一键推到电视</div></div><span class="sv" style="color:var(--brand)">推送 ›</span></div>
+        <div class="setrow" style="border:0;padding-left:0"><div><div class="sl">方式二：粘贴 Cookie</div><div class="sd">从浏览器复制 Cookie 串，粘贴到此处</div></div><span class="sv">粘贴 ›</span></div>
+        <div class="inp" style="margin-top:6px"><input placeholder="sessionid=...; ttwid=...; s_v_web_id=..."><span class="clear">×</span></div>
+        <div class="b1" style="margin-top:10px">保存并校验</div>
+      </div>
+    </div>
+    <div style="padding:10px 16px 0">
+      <div style="font-size:13px;color:var(--txt-3);margin-bottom:6px">关键字段检查（缺失会明确标出）</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="chip" style="height:30px;font-size:13px">sessionid ✓</span>
+        <span class="chip" style="height:30px;font-size:13px">ttwid ✗</span>
+        <span class="chip" style="height:30px;font-size:13px">s_v_web_id ✗</span>
+        <span class="chip" style="height:30px;font-size:13px">UIFID ✗</span>
+        <span class="chip" style="height:30px;font-size:13px">passport_csrf_token ✗</span>
+      </div>
+    </div>
+  </div>
+  <h2>对应代码里的 Prefs.missingKeyCookies —— 缺哪个字段直接标出来，不让用户猜</h2>
+</div>
+
+<!-- ===================== 电视端屏幕键盘 ===================== -->
+<div class="stage">
+  <h2>电视端 · 屏幕键盘（遥控器打字：拼音 + 候选词）</h2>
+  <div class="device tv" style="height:auto;padding-bottom:0">
+    <div style="display:flex;gap:10px;padding:10px 16px 0;align-items:center">
+      <div class="sbox" style="flex:1"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg><span class="kw">meishi<span style="color:var(--brand)">|</span></span><span style="font-size:13px;color:var(--txt-3)">拼音输入中</span></div>
+    </div>
+    <div class="kb">
+      <div class="cand">
+        <span style="font-size:13px;color:var(--txt-3);flex:none">候选</span>
+        <div class="cw focus">美食</div><div class="cw">没事</div><div class="cw">每小时</div><div class="cw">美食教程</div><div class="cw">没事的</div>
+      </div>
+      <div class="krow">
+        <div class="key">q</div><div class="key">w</div><div class="key">e</div><div class="key">r</div><div class="key">t</div>
+        <div class="key">y</div><div class="key">u</div><div class="key">i</div><div class="key">o</div><div class="key">p</div>
+      </div>
+      <div class="krow">
+        <div class="key">a</div><div class="key">s</div><div class="key">d</div><div class="key">f</div><div class="key">g</div>
+        <div class="key">h</div><div class="key">j</div><div class="key">k</div><div class="key">l</div>
+      </div>
+      <div class="krow">
+        <div class="key fn" style="min-width:76px">123</div>
+        <div class="key">z</div><div class="key">x</div><div class="key">c</div><div class="key">v</div>
+        <div class="key">b</div><div class="key">n</div><div class="key">m</div>
+        <div class="key fn" style="min-width:76px">删除</div>
+      </div>
+      <div class="krow">
+        <div class="key fn">中/英</div>
+        <div class="key wide">空格</div>
+        <div class="key primary">搜索</div>
+      </div>
+      <div class="kbhint">遥控器方向键移动焦点 · OK 选字 · 候选词行按拼音实时刷新</div>
+    </div>
+  </div>
+  <h2>中文输入必须带候选词行（拼音→汉字）· 底部「搜索」是 L1 主操作</h2>
+</div>
+
+<!-- ===================== 加载 / 动效 ===================== -->
+<div class="stage">
+  <h2>加载动画（品牌呼吸 + 滑动进度条，替代裸 spinner）</h2>
+  <div class="device">
+    <div class="topbar"><span style="flex:1">客厅电视 · 启动中</span><i class="dot"></i></div>
+    <div class="body" style="justify-content:center">
+      <div class="brandload"><div class="logo"><svg viewBox="0 0 48 48" style="width:100%;height:100%"><rect width="48" height="48" rx="12" fill="#0E0E13"/><path d="M31 9v21.2a7.6 7.6 0 1 1-4.2-6.8V9z" fill="#fff"/><path d="M31 9c3.2 0 6.3 1.6 8.4 4.2v6.3C37.3 16.8 34.2 15 31 15z" fill="#fff"/></svg></div><div class="bar"><i></i></div></div>
+    </div>
+  </div>
+  <h2>骨架屏（整页结构占位，微光扫过）</h2>
+</div>
+
+<div class="stage">
+  <h2>电视端 · 骨架屏 + 进场</h2>
+  <div class="device tv" style="height:auto;padding-bottom:16px">
+    <div class="topbar" style="padding:10px 16px"><span style="flex:1;font-size:15px">客厅电视 · 加载中</span><i class="dot"></i></div>
+    <div style="padding:0 16px;display:flex;gap:10px">
+      <div style="width:76px;display:flex;flex-direction:column;gap:4px">
+        <div class="skline" style="height:44px"></div><div class="skline" style="height:44px"></div>
+        <div class="skline" style="height:44px"></div><div class="skline" style="height:44px"></div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="skgrid">
+          <div class="skcard"></div><div class="skcard"></div><div class="skcard"></div>
+          <div class="skcard"></div><div class="skcard"></div>
+          <div class="skcard"></div><div class="skcard"></div><div class="skcard"></div>
+          <div class="skcard"></div><div class="skcard"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h2>进场：整页淡入上移 260ms · 卡片交错 24ms · 面板升起 320ms · 对话框 220ms 弹性</h2>
+</div>
+
+<!-- ===================== 组件库 ===================== -->
+<div class="stage">
+  <h2>组件库（全页面统一语言，替代 Material 默认样式）</h2>
+  <div class="device" style="height:auto;padding-bottom:16px">
+    <div class="body" style="gap:12px;padding-top:14px">
+      <div class="gh" style="padding:0">按钮三级</div>
+      <div class="b1">L1 主操作（每屏仅一个）</div>
+      <div class="b2">L2 次操作</div>
+      <div class="b3">L3 辅助</div>
+      <div class="gh" style="padding:0">输入框（聚焦品牌描边 / 错误态）</div>
+      <div class="inp"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg><input placeholder="点我聚焦看看描边"></div>
+      <div class="inp err"><input placeholder="配对码错误" value="12345"><span class="clear">×</span></div>
+      <div class="gh" style="padding:0">开关 / 分段控件</div>
+      <div class="grow" style="border:0;padding:0">震动反馈<div class="sw2 on" data-sw2 style="margin-left:auto"><i></i></div></div>
+      <div class="seg"><div class="on">视频模式</div><div>界面模式</div></div>
+      <div class="gh" style="padding:0">列表项 / 加载 / 空态</div>
+      <div class="group"><div class="grow"><svg class="ico" viewBox="0 0 24 24"><path d="M3 5h18v11H3zM8 19h8v-2H8z"/></svg>客厅电视<span class="sub">已连接</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div></div>
+      <div class="skel"></div>
+      <div class="state" style="padding:18px"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zm2 10v4h12v-4h-3a3 3 0 0 1-6 0z"/></svg><div class="st">空态标题</div><div>补充说明文字</div></div>
+      <div class="gh" style="padding:0">对话框（玻璃面板，非系统样式）</div>
+      <div class="b2" id="dlgBtn">打开对话框</div>
+    </div>
+  </div>
+  <h2>点「打开对话框」试试 —— 这替代了系统 AlertDialog 的观感</h2>
+</div>
+<div class="toast" id="toast"></div>
+<div class="dlg" id="dlg">
+  <div class="card">
+    <div class="dt">断开与「客厅电视」的连接？</div>
+    <div class="db">断开后需要重新配对才能遥控。当前配对码仍然有效。</div>
+    <div class="da"><div class="b2" id="dlgNo">取消</div><div class="b1" id="dlgYes">断开</div></div>
+  </div>
+</div>
+
+<!-- ===================== 命令日志 ===================== -->
+<div class="log">
+  <h3>命令日志（会发给电视的真实指令）</h3>
+  <div id="loglines"></div>
+  <div class="tip">
+    这套指令和电视端 2.18+ 完全对应：<br>
+    <span class="kbd">toggle</span> <span class="kbd">next</span> <span class="kbd">prev</span>
+    <span class="kbd">digg</span> <span class="kbd">dpad_up/down/left/right</span>
+    <span class="kbd">ok</span> <span class="kbd">back</span> <span class="kbd">menu</span>
+    <span class="kbd">search</span> <span class="kbd">push</span> <span class="kbd">checkupdate</span>
+    <span class="kbd">settings</span><br><br>
+    你在原型里点/拖的每个动作，都会以真实指令名记录在左侧 —— 这样在编译之前就能确认「手势→指令」映射对不对。
+  </div>
+</div>
+
+<script>
+const logEl = document.getElementById('loglines');
+function log(cmd, arg){
+  const d = document.createElement('div');
+  d.className = 'line';
+  d.innerHTML = '<b>' + cmd + '</b>' + (arg ? '  arg=' + arg : '');
+  logEl.prepend(d);
+  if (logEl.children.length > 60) logEl.lastChild.remove();
+}
+
+/* ---------- 底部 Tab 切换 + 指示条 ---------- */
+const tabs = [...document.querySelectorAll('#tabbar .tab')];
+const pages = [...document.querySelectorAll('.page')];
+const ind = document.getElementById('ind');
+function goTab(i){
+  tabs.forEach((t,k)=>t.classList.toggle('on',k===i));
+  pages.forEach((p,k)=>p.classList.toggle('on',k===i));
+  ind.style.transform = 'translateX(' + (i*100) + '%)';
+  document.getElementById('pageTitle').textContent = ['遥控','设备','工具','设置','方向'][i];
+  log('tab', ['遥控','设备','工具','设置','方向'][i]);
+}
+tabs.forEach((t,i)=>t.addEventListener('click',()=>goTab(i)));
+
+/* ---------- 按键 ---------- */
+document.querySelectorAll('[data-cmd]').forEach(el=>{
+  el.addEventListener('click',e=>{
+    if (el.dataset.cmd === 'search') { log('search', document.querySelector('.page.on .field').textContent); return; }
+    log(el.dataset.cmd);
+  });
+});
+document.querySelectorAll('[data-say]').forEach(el=>{
+  el.addEventListener('click',()=>log('(界面动作)', el.dataset.say));
+});
+document.querySelectorAll('[data-sw]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    el.classList.toggle('on');
+    const on = el.classList.contains('on');
+    log('(本地设置)', (el.id==='lockSw'?'遥控锁定':'震动') + ' = ' + on);
+  });
+});
+
+/* ---------- 触控板：拖动识别方向 / 轻点 / 双击 ---------- */
+const pad = document.getElementById('pad'), fly = document.getElementById('fly');
+let sx=0, sy=0, moved=false, lastTap=0;
+pad.addEventListener('pointerdown', e=>{ sx=e.clientX; sy=e.clientY; moved=false; pad.setPointerCapture(e.pointerId); });
+pad.addEventListener('pointermove', e=>{
+  const dx=e.clientX-sx, dy=e.clientY-sy;
+  if (Math.abs(dx)>40 || Math.abs(dy)>40) moved = true;
+});
+pad.addEventListener('pointerup', e=>{
+  const dx=e.clientX-sx, dy=e.clientY-sy;
+  if (!moved){
+    const now=Date.now();
+    if (now-lastTap < 350){ show('点赞 👍'); log('digg'); lastTap=0; }
+    else { lastTap=now; show('⏸'); log('toggle'); }
+    return;
+  }
+  if (Math.abs(dx) > Math.abs(dy)){
+    if (dx < 0) { goTab(Math.min(4, tabs.findIndex(t=>t.classList.contains('on'))+1)); }
+    else { goTab(Math.max(0, tabs.findIndex(t=>t.classList.contains('on'))-1)); }
+  } else {
+    const cmd = dy < 0 ? 'next' : 'prev';
+    show(dy < 0 ? '▲ 下一条' : '▼ 上一条'); log(cmd);
+  }
+});
+function show(t){ fly.textContent=t; fly.classList.remove('show'); void fly.offsetWidth; fly.classList.add('show'); }
+
+/* ---------- 电视端：方向键移动焦点 ---------- */
+const cards = [...document.querySelectorAll('#grid .card')];
+const sites = [...document.querySelectorAll('#side .sitem')];
+let fi = 0, si = 0, zone = 'grid';
+function paint(){
+  cards.forEach((c,i)=>c.classList.toggle('focus', zone==='grid' && i===fi));
+  sites.forEach((s,i)=>s.classList.toggle('on', i===si));
+  var cur = cards[zone==='grid' ? fi : 0];
+  var t = cur.querySelector('.ct'), m = cur.querySelector('.cm');
+  document.getElementById('ibT').textContent = t ? t.textContent : '—';
+  document.getElementById('ibM').textContent = m ? m.textContent : '';
+}
+window.addEventListener('keydown', e=>{
+  const k = e.key;
+  if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter'].includes(k)) return;
+  e.preventDefault();
+  if (zone === 'grid') {
+    const col = fi % 5;
+    if (k==='ArrowRight' && fi < cards.length-1) fi++;
+    else if (k==='ArrowLeft') { if (col > 0) fi--; else zone = 'side'; }
+    else if (k==='ArrowDown' && fi+5 < cards.length) fi += 5;
+    else if (k==='ArrowUp' && fi-5 >= 0) fi -= 5;
+  } else {
+    if (k==='ArrowUp' && si > 0) si--;
+    else if (k==='ArrowDown' && si < sites.length-1) si++;
+    else if (k==='ArrowRight') zone = 'grid';
+  }
+  paint();
+  log(k==='Enter' ? 'ok' : ({ArrowUp:'dpad_up',ArrowDown:'dpad_down',ArrowLeft:'dpad_left',ArrowRight:'dpad_right'})[k]);
+});
+sites.forEach((s,i)=>s.addEventListener('click',()=>{ zone='side'; si=i; paint(); log('(切换分类)', s.textContent); }));
+paint();
+document.getElementById('moreBtn').addEventListener('click',()=>{ document.getElementById('moreMenu').classList.toggle('on'); log('(二级菜单)','开合'); });
+document.querySelectorAll('.menu .mi').forEach(el=>el.addEventListener('click',()=>{ document.getElementById('moreMenu').classList.remove('on'); log(el.dataset.cmd || '(界面动作)', el.dataset.say || ''); }));
+document.querySelectorAll('[data-sw2]').forEach(el=>{ el.addEventListener('click',e=>{ e.stopPropagation(); el.classList.toggle('on'); log('(本地设置)', (el.id==='lockSw'?'遥控锁定':'震动') + ' = ' + el.classList.contains('on')); }); });
+const dlg=document.getElementById('dlg');
+document.getElementById('dlgBtn').addEventListener('click',()=>dlg.classList.add('on'));
+document.getElementById('dlgNo').addEventListener('click',()=>dlg.classList.remove('on'));
+document.getElementById('dlgYes').addEventListener('click',()=>{ dlg.classList.remove('on'); log('disconnect'); });
+function toast(msg){ var el=document.getElementById('toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(window.__tt); window.__tt=setTimeout(()=>el.classList.remove('on'),1600); }
+document.querySelectorAll('[data-cmd]').forEach(el=>{ el.addEventListener('click',()=>{ if(el.dataset.cmd==='toggle') toast('已暂停'); }); });
+document.querySelectorAll('.act').forEach(el=>{ el.addEventListener('click',()=>{ el.classList.toggle('on'); el.classList.add('pop'); setTimeout(()=>el.classList.remove('pop'),340); toast(el.classList.contains('on')?'已点赞':'已取消点赞'); }); });
+document.querySelectorAll('#grid .card').forEach(function(c,i){ c.style.animationDelay = (i*24) + 'ms'; });
+document.querySelectorAll('.cmt').forEach(function(c,i){ c.style.animationDelay = (i*50) + 'ms'; });
+toast('原型就绪');
+log('(原型就绪)','拖动触控板 / 点按钮 / 按方向键');
+</script>
+</body>
+</html>

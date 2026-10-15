@@ -14,6 +14,16 @@ permissions:
   contents: write        # 发 Release 需要写权限
 
 jobs:
+# ---------------- 设计守卫（防止 UI 风格退化） ----------------
+  design-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run design guard
+        shell: pwsh
+        run: ./tools/design-guard.ps1
+
   # ---------------- 电视端（DTV） ----------------
   tv:
     runs-on: ubuntu-latest
