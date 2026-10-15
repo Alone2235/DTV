@@ -223,8 +223,41 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingTop="@dimen/space_m"
-                android:paddingBottom="@dimen/space_xl"
+                android:paddingBottom="@dimen/infobar_height"
                 android:scrollbars="none" />
+
+              <!-- 改版：焦点信息栏（卡片纯封面，标题/作者只在此显示；一屏一个信息焦点） -->
+              <LinearLayout
+                  android:id="@+id/infobar"
+                  android:layout_width="match_parent"
+                  android:layout_height="@dimen/infobar_height"
+                  android:layout_gravity="bottom"
+                  android:background="@color/scrim_panel"
+                  android:gravity="center_vertical"
+                  android:orientation="horizontal"
+                  android:paddingLeft="@dimen/space_m"
+                  android:paddingRight="@dimen/space_m">
+
+                  <TextView
+                      android:id="@+id/tvInfoTitle"
+                      android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="1"
+                      android:ellipsize="end"
+                      android:maxLines="1"
+                      android:textColor="@color/text_primary"
+                      android:textSize="@dimen/infobar_title_size" />
+
+                  <TextView
+                      android:id="@+id/tvInfoMeta"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_marginLeft="@dimen/space_m"
+                      android:ellipsize="end"
+                      android:maxLines="1"
+                      android:textColor="@color/text_secondary"
+                      android:textSize="@dimen/infobar_meta_size" />
+              </LinearLayout>
 
             <!-- 占位：加载中 / 空 / 失败 三态共用 -->
             <LinearLayout

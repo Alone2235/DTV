@@ -43,7 +43,7 @@ class MainActivity : Activity() {
         const val TAG = "Main"
 
         /** 网格列数：1920 宽屏下 260dp 卡片约可放 6 列，取 4 更宽松好按 */
-        const val SPAN_COUNT = 4
+        const val SPAN_COUNT = 5
 
         const val NAV_RECOMMEND = 0
 
@@ -69,6 +69,9 @@ class MainActivity : Activity() {
     private lateinit var gridView: RecyclerView
     private lateinit var layoutManager: GridLayoutManager
     private lateinit var adapter: VideoGridAdapter
+    // 改版：焦点信息栏（卡片纯封面后，标题/作者在此显示）
+    private lateinit var tvInfoTitle: TextView
+    private lateinit var tvInfoMeta: TextView
 
     // ---- 占位区 ----
     private lateinit var placeholder: View
@@ -342,6 +345,8 @@ class MainActivity : Activity() {
         tvCount = findViewById(R.id.tvCount) as TextView
         tvHint = findViewById(R.id.tvHint) as TextView
         gridView = findViewById(R.id.gridView) as RecyclerView
+        tvInfoTitle = findViewById(R.id.tvInfoTitle) as TextView
+        tvInfoMeta = findViewById(R.id.tvInfoMeta) as TextView
 
         tabScroll = findViewById(R.id.tabScroll)
         tabContainer = findViewById(R.id.tabContainer) as android.widget.LinearLayout
@@ -419,6 +424,11 @@ class MainActivity : Activity() {
         layoutManager = GridLayoutManager(this, SPAN_COUNT)
         gridView.layoutManager = layoutManager
         adapter = VideoGridAdapter(items) { pos -> playAt(pos) }
+        // 改版：焦点项 -> 信息栏
+        adapter.onFocusItem = { title, meta ->
+            tvInfoTitle.text = title
+            tvInfoMeta.text = meta
+        }
         gridView.adapter = adapter
         // 规则③：RecyclerView 自身可聚焦 + 子项优先获得焦点
         gridView.isFocusable = true

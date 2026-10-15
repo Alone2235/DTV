@@ -40,6 +40,9 @@ class VideoGridAdapter(
         return VH(v)
     }
 
+    /** 焦点项变化 -> 首页信息栏（改版：卡片纯封面后，标题/作者只在信息栏显示） */
+    var onFocusItem: ((String, String) -> Unit)? = null
+
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: VH, position: Int) {
@@ -72,7 +75,15 @@ class VideoGridAdapter(
         // ★ 10 英尺焦点：聚焦时卡片轻微放大（Netflix / Apple TV 同款反馈），
         //   叠加 focus_card 的白描边 + 柔光，3 米外一眼能锁定当前卡片
         //   统一走 FocusAnim（ease-out 140ms，全应用手感一致）
-        holder.itemView.setOnFocusChangeListener { v, has -> FocusAnim.scaleTo(v, has, 1.04f) }
+        holder.itemView.setOnFocusChangeListener { v, has ->
+                        FocusAnim.scaleTo(v, has, 1.04f)
+                        // 改版：焦点项信息送到信息栏（卡片本身不再显示标题）
+                        if (has) {
+                            val tvT = v.findViewById(R.id.tvTitle) as? android.widget.TextView
+                            val tvM = v.findViewById(R.id.tvMeta) as? android.widget.TextView
+                            onFocusItem?.invoke(tvT?.text?.toString() ?: "", tvM?.text?.toString() ?: "")
+                        }
+                    }
     }
 
     /** 切换分类：整体替换 */
