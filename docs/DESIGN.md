@@ -1,7 +1,40 @@
 # DTV 设计规范（UI 唯一依据）
 
-> 本文汇总项目所有 UI 要求与已定稿结论。**任何界面改动先对照本文**；
-> 原型预览（可交互）：`docs/preview/index.html` —— 改设计先在原型里看，通过后再落到代码。
+> ## ⚠️ 权威来源（最重要）
+> **颜色与尺寸的唯一来源是代码里的资源文件，不是本文档：**
+> - `app/src/main/res/values/colors.xml` ← 配色令牌
+> - `app/src/main/res/values/dimens.xml` ← 尺寸/字阶/圆角令牌
+>
+> 本文档与上述文件冲突时**以文件为准**；本文档只补充"文件里没写的"规则（层级/图标/导航/动效/流程）。
+>
+> ### 项目原有令牌（已存在，勿另造）
+> | 类别 | 值 |
+> |---|---|
+> | 背景层次 | `bg_root #0B0B0F` / `bg_nav #101015` / `bg_surface #16161C` / `bg_surface_hi #1F1F28` / `bg_chip #23232C` |
+> | 文字 | `text_primary #FFFFFF` / `text_secondary #B8FFFFFF` / `text_tertiary #7AFFFFFF` |
+> | 品牌 | `brand #FE2C55` / `brand_dim` / `brand_tint` |
+> | 焦点 | `focus_stroke #FFFFFF` / `focus_glow #33FFFFFF` / 描边 2dp / 柔光 inset 4dp |
+> | 功能色 | `accent_warn #FFD54F` / `accent_error #F06292` / `accent_ok #81C784` / `divider #1AFFFFFF` |
+> | 覆盖层 | `scrim_strong` / `scrim_overlay` |
+> | 间距 | **4dp 网格**：4 / 8 / 12 / 16 / 24 / 32 |
+> | 圆角 | 6 / 10 / 14 / 20 |
+> | 字阶 | 30 / 22 / 18 / 16 / 14 / 12（正文 ≥14sp，可读信息 ≥18sp） |
+> | 侧栏 | 宽 178dp / 项高 46dp / 字 18sp |
+> | 卡片 | 宽 260dp / 封面 146dp(16:9) / 圆角 16dp / 横距 16 / 纵距 20 |
+> | 按钮 | 高 46dp / 字 18sp |
+>
+> **原设计原则（摘自原注释，必须遵守）**
+> · 底色近黑但**不纯黑**（纯黑在电视上发闷、且和视频黑边糊成一片）
+> · 卡片比底色亮一档，**靠明度差做层次，不靠描边**
+> · 所有间距走 **4dp 网格**，禁止随手写 13dp / 17dp
+> · **焦点可见性优先于信息密度**
+>
+> **本项目已发生 4 次"没先看已有资产"的返工**：①覆盖电视端原图标 ②凭空设计已存在页面 ③丢掉原搜索页的实时联想/拼音纠错 ④在原型里另造了一套与 colors.xml/dimens.xml 冲突的 token。
+> **动手前必做**：读 `colors.xml`、`dimens.xml`、目标页面的 Activity/布局与注释。
+>
+> ---
+>
+> 本文汇总项目所有 UI 要求与已定稿结论；原型预览（可交互）：`docs/preview/index.html`。
 
 ---
 
