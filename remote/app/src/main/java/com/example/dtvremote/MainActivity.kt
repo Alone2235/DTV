@@ -115,7 +115,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun DtvApp() {
-        val pages = listOf("遥控", "设备", "工具", "设置")
+        val pages = listOf("遥控", "设备", "工具", "设置", "方向")
         val pagerState = rememberPagerState(pageCount = { pages.size })
         val scope = rememberCoroutineScope()
 
@@ -133,7 +133,8 @@ class MainActivity : ComponentActivity() {
                         0 -> RemotePage(scope)
                         1 -> DevicePage(scope)
                         2 -> ToolsPage()
-                        else -> SettingsPage()
+                        3 -> SettingsPage()
+                        else -> KeyPage()
                     }
                 }
                 BottomBar(pages, pagerState, scope)
@@ -159,9 +160,15 @@ class MainActivity : ComponentActivity() {
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val statusText = when {
+                ip.isBlank() -> "未连接 → 去「设备」页配对"
+                locked -> "遥控已锁定 → 去「设置」页解锁"
+                else -> "$ip  v$tvVersion"
+            }
             Text(
-                if (ip.isBlank()) "未连接" else "$ip  v$tvVersion",
-                color = Color(0xFF9A9AA8), fontSize = 12.sp,
+                statusText,
+                color = if (ip.isBlank() || locked) Color(0xFFF06292) else Color(0xFF9A9AA8),
+                fontSize = 13.sp,
                 modifier = Modifier.weight(1f)
             )
             val dotColor = when (connState) {
@@ -169,7 +176,11 @@ class MainActivity : ComponentActivity() {
             }
             Box(Modifier.size(10.dp).clip(CircleShape).background(dotColor))
             Spacer(Modifier.width(10.dp))
-            Text("⋮", color = Color(0xFF9A9AA8), fontSize = 18.sp)
+            Image(
+                painter = painterResource(R.drawable.ic_more), contentDescription = "更多",
+                colorFilter = ColorFilter.tint(Color(0xFF9A9AA8)),
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 
@@ -178,9 +189,9 @@ class MainActivity : ComponentActivity() {
     private fun BottomBar(pages: List<String>, pagerState: androidx.compose.foundation.pager.PagerState, scope: kotlinx.coroutines.CoroutineScope) {
         BoxWithConstraints(
             Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)
-                .clip(RoundedCornerShape(22.dp))
+                .clip(RoundedCornerShape(20.dp))
                 .background(Brush.verticalGradient(listOf(Color(0x1FFFFFFF), Color(0x0AFFFFFF))))
-                .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(22.dp))
+                .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(20.dp))
         ) {
             val tabW = maxWidth / pages.size
             val progress = pagerState.currentPage + pagerState.currentPageOffsetFraction
@@ -237,11 +248,9 @@ class MainActivity : ComponentActivity() {
                 },
                 color = Color.White, fontSize = 13.sp, maxLines = 1
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
             TouchPad(Modifier.weight(1f).fillMaxWidth())
             Spacer(Modifier.height(14.dp))
-            Spacer(Modifier.height(12.dp))
-            DpadCluster()          // ★ 方向键/OK/返回/菜单（此前手机端完全没有这些按钮）
             Spacer(Modifier.height(12.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 CircleBtn(R.drawable.ic_prev, "上一条", false) { send("prev") }
@@ -331,6 +340,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** 独立「方向」页：方向键 / OK / 返回 / 菜单（不再占用遥控页空间） */
+    @Composable
+    private fun KeyPage() {
+        Column(
+            Modifier.fillMaxSize().padding(18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("方向键 / 返回 / 菜单 —— 用于操作电视界面",
+                color = Color(0xFF9A9AA8), fontSize = 13.sp)
+            Spacer(Modifier.height(24.dp))
+            DpadCluster()
+        }
+    }
     /** 方向键九宫格 + 返回/菜单（TV 端自 2.18 起已支持这些指令） */
     @Composable
     private fun DpadCluster() {
@@ -342,7 +365,7 @@ class MainActivity : ComponentActivity() {
                 Spacer(Modifier.width(8.dp))
                 KeyBtn(R.drawable.ic_menu, "菜单") { send("menu") }
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                 KeyBtn(R.drawable.ic_dpad_left, "左") { send("dpad_left") }
                 Spacer(Modifier.width(8.dp))
@@ -350,7 +373,7 @@ class MainActivity : ComponentActivity() {
                 Spacer(Modifier.width(8.dp))
                 KeyBtn(R.drawable.ic_dpad_right, "右") { send("dpad_right") }
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
             KeyBtn(R.drawable.ic_dpad_down, "下") { send("dpad_down") }
         }
     }
@@ -383,14 +406,14 @@ class MainActivity : ComponentActivity() {
     /** 设备页：扫描 / 手动 / 配对码 */
     @Composable
     private fun DevicePage(scope: kotlinx.coroutines.CoroutineScope) {
-        Column(Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
+        Column(Modifier.fillMaxSize().padding(18.dp).verticalScroll(rememberScrollState())) {
             Text("设备", color = Color(0xFF9A9AA8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             OutlinedTextField(
                 value = ipInput, onValueChange = { ipInput = it },
                 label = { Text("电视 IP") }, singleLine = true, modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Spacer(Modifier.height(10.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Btn("扫描设备", Modifier.weight(1f)) { discover() }
                 Btn("手动添加", Modifier.weight(1f)) { manualAdd() }
                 Btn("重连", Modifier.weight(1f)) { connect() }
@@ -408,13 +431,13 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(24.dp))
             Text("配对（首次需要，电视上有 6 位码）", color = Color(0xFF9A9AA8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             OutlinedTextField(
                 value = codeInput, onValueChange = { codeInput = it.filter { c -> c.isDigit() }.take(6) },
                 label = { Text("6 位配对码") }, singleLine = true, modifier = Modifier.fillMaxWidth()
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
             Btn(if (paired) "已配对 ✓" else "配对", Modifier.fillMaxWidth()) { pair() }
         }
     }
@@ -422,27 +445,27 @@ class MainActivity : ComponentActivity() {
     /** 工具页：搜索 / 推视频 / APK */
     @Composable
     private fun ToolsPage() {
-        Column(Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
+        Column(Modifier.fillMaxSize().padding(18.dp).verticalScroll(rememberScrollState())) {
             Text("搜索视频", color = Color(0xFF9A9AA8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             OutlinedTextField(value = kwInput, onValueChange = { kwInput = it },
                 label = { Text("关键词") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
             Btn("在电视上搜索", Modifier.fillMaxWidth()) { send("search", kwInput) }
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(24.dp))
             Text("推送到电视", color = Color(0xFF9A9AA8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             OutlinedTextField(value = pushInput, onValueChange = { pushInput = it },
                 label = { Text("抖音分享链接 / aweme_id") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
             Btn("推送到电视", Modifier.fillMaxWidth()) { send("push", pushInput) }
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(24.dp))
             Text("APK 升级", color = Color(0xFF9A9AA8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Spacer(Modifier.height(10.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Btn("检查更新", Modifier.weight(1f)) { apkInfo() }
                 Btn("上传APK", Modifier.weight(1f)) { pickApk() }
                 Btn("安装", Modifier.weight(1f)) { apkInstall() }
             }
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(24.dp))
             Text("日志", color = Color(0xFF9A9AA8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             Text(logText, color = Color(0xFF64B5F6), fontSize = 10.sp)
         }
@@ -451,7 +474,7 @@ class MainActivity : ComponentActivity() {
     /** 设置页：开关 + 手势映射 */
     @Composable
     private fun SettingsPage() {
-        Column(Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
+        Column(Modifier.fillMaxSize().padding(18.dp).verticalScroll(rememberScrollState())) {
             Text("设置", color = Color(0xFF9A9AA8), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             SwitchRow("触控反馈震动", vibOn) { vibOn = it; saveBool("vib", it) }
             SwitchRow("遥控锁定（防误触）", locked) { locked = it; saveBool("locked", it) }
@@ -493,7 +516,7 @@ class MainActivity : ComponentActivity() {
             label = "btn"
         )
         Box(
-            modifier.scale(scale).height(44.dp).clip(RoundedCornerShape(12.dp))
+            modifier.scale(scale).height(52.dp).clip(RoundedCornerShape(14.dp))
                 .background(Color(0xFF23232E))
                 .clickable(interactionSource = interaction, indication = null) { haptic(); act() },
             contentAlignment = Alignment.Center

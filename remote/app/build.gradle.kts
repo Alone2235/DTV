@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.dtvremote"
         minSdk = 21
         targetSdk = 34
-        versionCode = 25
-        versionName = "3.01"
+        versionCode = 28
+        versionName = "3.04"
     }
     signingConfigs {
         create("dtv") {
