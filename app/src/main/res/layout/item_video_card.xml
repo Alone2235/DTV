@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  视频卡片（统一视觉层次）
+  视频卡片 —— 本次改版：纯封面
   ==========================
-  层次：封面（主体）→ 标题（白，16sp，2 行）→ 副信息（次白，13sp）
-  焦点：底色提亮 + 2dp 白描边（@drawable/focus_card）
+  设计变更（依据 docs/DESIGN.md 与原型）：
+   · 卡片**只显示封面 + 角标**，标题/作者/播放量不再常驻
+     → 一屏 10 条标题会互相抢注意力（"文字打架"），改为**焦点项的信息统一走下方信息栏**
+   · 信息区保留 id（tvTitle/tvMeta）以便适配器继续绑定，但**置 gone**（高度 0）
+   · 焦点：2dp 品牌色描边（@drawable/focus_card），无柔光
+   · 间距收紧：横向 8dp / 纵向 12dp（令牌已改）
 
-  为什么封面不是圆角：API 17 上没有 clipToOutline，
-  ImageView 无法把 src 裁剪成圆角，硬做需要 Bitmap 处理（老设备不划算）。
-  改用「卡片圆角 + 封面内缩 padding」达到同样的视觉收边效果。
+  为什么封面不是圆角：API 17 上没有 clipToOutline，ImageView 无法把 src 裁成圆角；
+  靠卡片圆角 + 封面内缩 padding 达到收边效果（card_cover_inset 现为 0，圆角由卡片承担）。
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="@dimen/tv_card_width"
@@ -70,14 +73,16 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <!-- 信息区：标题 + 副信息（★ 压缩：标题 1 行，避免文字区喧宾夺主） -->
+    <!-- 信息区：本次改版置 gone（纯封面）。
+         id 保留 → 适配器绑定不崩溃；标题/副信息改由首页「焦点信息栏」显示。 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/tv_card_info_height"
         android:orientation="vertical"
         android:paddingLeft="@dimen/space_s"
         android:paddingRight="@dimen/space_s"
-        android:paddingTop="@dimen/space_xs">
+        android:paddingTop="@dimen/space_xs"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tvTitle"
