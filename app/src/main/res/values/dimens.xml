@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ★ 统一尺寸规范（TV 端）★
+  ★ 统一尺寸规范（TV 端）★ —— 本次改版
   电视是 3 米外观看、只有遥控器：
-   · 字号下限 14sp（正文）/ 18sp（可读信息），低于此在电视上糊成一片
-   · 所有间距走 4dp 网格，禁止随手写 13dp/17dp 这类值
-   · 焦点可见性优先于信息密度
+   · 字号：正文不低于 16sp，可读信息不低于 18sp
+   · 所有间距走 4dp 网格，禁止随手写 13dp/17dp
+   · ★ 焦点可见性优先于信息密度
+  本次改版要点：
+   · 圆角收小：控件 10dp / 面板 16dp（原 20dp 偏大）
+   · 侧栏收窄：178dp → 88dp（图标 + 小字）
+   · 内容区边距 28dp → 16dp（左右对齐轴一致）
+   · 卡片改为「每行 5 列等宽」，间距收紧（8 / 12）
+   · 分类改为 chips（36dp 高 / 14sp）
+   · 焦点去掉柔光：focus_halo_inset = 0
 -->
 <resources>
 
-    <!-- ============ 间距体系（4dp 网格） ============ -->
+    <!-- ============ 间距体系（4dp 网格，保留） ============ -->
     <dimen name="space_xs">4dp</dimen>
     <dimen name="space_s">8dp</dimen>
     <dimen name="space_m">12dp</dimen>
@@ -16,88 +23,122 @@
     <dimen name="space_xl">24dp</dimen>
     <dimen name="space_xxl">32dp</dimen>
 
-    <!-- ============ 圆角体系 ============ -->
+    <!-- ============ 圆角体系（改版：收小） ============ -->
     <dimen name="radius_s">6dp</dimen>
+    <!-- 角标 / 小标签 -->
     <dimen name="radius_m">10dp</dimen>
+    <!-- ★ 控件（按钮 / 输入框 / 键位） -->
     <dimen name="radius_l">14dp</dimen>
-    <dimen name="radius_xl">20dp</dimen>
-    <!-- 大卡片 / 面板（iOS / 澎湃大圆角） -->
+    <dimen name="radius_xl">16dp</dimen>
+    <!-- ★ 面板 / 卡片（原 20dp） -->
 
-    <!-- ============ 字号体系 ============ -->
-    <dimen name="text_display">30sp</dimen>
-    <!-- 页面大标题 -->
+    <!-- ============ 字号体系（六档，保留） ============ -->
+    <dimen name="text_display">28sp</dimen>
+    <!-- 主界面大标题（原 30sp） -->
     <dimen name="text_title">22sp</dimen>
     <!-- 分区标题 -->
     <dimen name="text_subtitle">18sp</dimen>
-    <!-- 卡片标题 -->
+    <!-- 卡片标题 / 可读信息下限 -->
     <dimen name="text_body">16sp</dimen>
     <!-- 正文 / 按钮 -->
     <dimen name="text_caption">14sp</dimen>
     <!-- 副信息 -->
     <dimen name="text_micro">12sp</dimen>
-    <!-- 角标 -->
+    <!-- 角标 / 三级信息 -->
 
-    <!-- ============ 焦点描边 ============ -->
+    <!-- ============ 焦点（改版：去柔光，描边用品牌色） ============ -->
     <dimen name="focus_stroke_width">2dp</dimen>
-    <!-- 聚焦柔光外扩宽度（layer-list 模拟光晕） -->
-    <dimen name="focus_halo_inset">4dp</dimen>
+    <dimen name="focus_halo_inset">0dp</dimen>
+    <!-- ★ 0 = 去柔光（原 4dp） -->
 
-    <!-- ============ 侧边导航 ============ -->
-    <dimen name="tv_nav_width">178dp</dimen>
-    <dimen name="tv_nav_padding_h">16dp</dimen>
-    <dimen name="tv_nav_padding_v">20dp</dimen>
-    <dimen name="tv_nav_item_height">46dp</dimen>
-    <dimen name="tv_nav_item_margin_v">3dp</dimen>
-    <dimen name="tv_nav_text_size">18sp</dimen>
-    <dimen name="tv_nav_logo_size">26sp</dimen>
+    <!-- ============ 侧边导航（改版：收窄） ============ -->
+    <dimen name="tv_nav_width">88dp</dimen>
+    <!-- 原 178dp -->
+    <dimen name="tv_nav_padding_h">8dp</dimen>
+    <dimen name="tv_nav_padding_v">12dp</dimen>
+    <dimen name="tv_nav_item_height">52dp</dimen>
+    <!-- 图标 + 小字 -->
+    <dimen name="tv_nav_item_margin_v">4dp</dimen>
+    <dimen name="tv_nav_text_size">13sp</dimen>
+    <dimen name="tv_nav_icon_size">20dp</dimen>
+    <dimen name="tv_nav_logo_size">26dp</dimen>
 
-    <!-- ============ 内容区 ============ -->
-    <dimen name="tv_content_padding">28dp</dimen>
+    <!-- ============ 内容区（改版：边距对齐 16dp） ============ -->
+    <dimen name="tv_content_padding">16dp</dimen>
+    <!-- 原 28dp -->
     <dimen name="tv_section_title_size">22sp</dimen>
     <dimen name="tv_page_title_size">28sp</dimen>
-    <!-- 主界面大标题（AppleTV 风格层级） -->
-    <dimen name="tv_section_title_margin_bottom">16dp</dimen>
+    <dimen name="tv_section_title_margin_bottom">12dp</dimen>
 
-    <!-- ============ 视频卡片 ============ -->
-    <!-- 卡片总宽 260dp：1920 宽下每行 6 张（含间距）刚好铺满，留白均匀 -->
-    <dimen name="card_width">260dp</dimen>
-    <dimen name="card_cover_height">146dp</dimen>
+    <!-- ============ 信息栏（焦点项标题 / 作者，电视端只在此显示文字） ============ -->
+    <dimen name="infobar_height">52dp</dimen>
+    <dimen name="infobar_title_size">18sp</dimen>
+    <dimen name="infobar_meta_size">14sp</dimen>
+
+    <!-- ============ 视频卡片（改版：5 列等宽 + 间距收紧） ============ -->
+    <!-- 逻辑宽按「行内均分」由布局计算，这里保留一个基准值供固定宽场景使用 -->
+    <dimen name="card_width">330dp</dimen>
+    <dimen name="card_cover_height">186dp</dimen>
     <!-- 16:9 -->
     <dimen name="card_radius">16dp</dimen>
-    <!-- iOS/澎湃大圆角 -->
-    <dimen name="card_cover_inset">6dp</dimen>
-    <!-- 封面内缩（4.2 无 clipToOutline，靠内缩呈现圆角收边） -->
-    <dimen name="card_info_min_height">52dp</dimen>
+    <dimen name="card_cover_inset">0dp</dimen>
+    <!-- ★ 改版：不再靠内缩做圆角 -->
+    <dimen name="card_info_min_height">0dp</dimen>
+    <!-- ★ 改版：卡片纯封面，无标题区（信息走信息栏） -->
     <dimen name="card_title_size">16sp</dimen>
     <dimen name="card_meta_size">13sp</dimen>
-    <dimen name="card_h_gap">16dp</dimen>
-    <dimen name="card_v_gap">20dp</dimen>
+    <dimen name="card_h_gap">8dp</dimen>
+    <!-- 原 16dp -->
+    <dimen name="card_v_gap">12dp</dimen>
+    <!-- 原 20dp -->
 
-    <!-- ============ 分类 Tab 条 ============ -->
-    <dimen name="tab_height">44dp</dimen>
-    <dimen name="tab_text_size">17sp</dimen>
-    <dimen name="tab_padding_h">22dp</dimen>
+    <!-- ============ 分类 chips（改版：由 Tab 改 chips） ============ -->
+    <dimen name="tab_height">36dp</dimen>
+    <!-- 原 44dp -->
+    <dimen name="tab_text_size">14sp</dimen>
+    <!-- 原 17sp -->
+    <dimen name="tab_padding_h">16dp</dimen>
+    <dimen name="chip_radius">18dp</dimen>
+    <!-- 胶囊 -->
 
-    <!-- ============ 通用按钮 ============ -->
+    <!-- ============ 通用按钮（保留：电视焦点目标不宜缩小） ============ -->
     <dimen name="btn_height">46dp</dimen>
     <dimen name="btn_text_size">18sp</dimen>
     <dimen name="btn_padding_h">24dp</dimen>
 
+    <!-- ============ 暂停菜单（改版：紧凑三层） ============ -->
+    <dimen name="sheet_margin_h">16dp</dimen>
+    <dimen name="sheet_margin_bottom">16dp</dimen>
+    <dimen name="sheet_padding_h">12dp</dimen>
+    <dimen name="sheet_padding_v">10dp</dimen>
+    <dimen name="sheet_action_height">48dp</dimen>
+    <!-- L2 图标+文字 -->
+    <dimen name="sheet_mini_size">40dp</dimen>
+    <!-- L3 纯图标 -->
+    <dimen name="sheet_title_size">16sp</dimen>
+    <dimen name="progress_height">4dp</dimen>
+
+    <!-- ============ 状态页（空 / 加载 / 错误） ============ -->
+    <dimen name="state_icon_size">48dp</dimen>
+    <dimen name="state_title_size">18sp</dimen>
+    <dimen name="state_desc_size">14sp</dimen>
+    <dimen name="brandload_logo_size">56dp</dimen>
+    <dimen name="brandload_bar_width">140dp</dimen>
 
     <!-- ============================================================
          兼容别名：布局里仍在使用的旧名字，值统一对齐上面的令牌体系。
-         后续重构布局时会逐步换成新令牌名；先保证现有布局可用。
+         逐页重构后会移除。
          ============================================================ -->
     <dimen name="tv_text_title">22sp</dimen>
     <dimen name="tv_text_body">16sp</dimen>
     <dimen name="tv_text_small">13sp</dimen>
 
-    <dimen name="tv_card_width">260dp</dimen>
-    <dimen name="tv_card_height">198dp</dimen>
-    <dimen name="tv_card_info_height">44dp</dimen>
+    <dimen name="tv_card_width">330dp</dimen>
+    <dimen name="tv_card_height">240dp</dimen>
+    <dimen name="tv_card_info_height">0dp</dimen>
     <dimen name="tv_card_title_size">16sp</dimen>
     <dimen name="tv_card_meta_size">13sp</dimen>
-    <dimen name="tv_card_margin">14dp</dimen>
+    <dimen name="tv_card_margin">8dp</dimen>
     <dimen name="tv_card_duration_bg_size">12sp</dimen>
 
     <dimen name="tv_btn_height">46dp</dimen>
@@ -105,12 +146,11 @@
     <dimen name="tv_btn_padding_h">24dp</dimen>
     <dimen name="tv_btn_text_size">18sp</dimen>
 
-    <dimen name="tv_tab_height">44dp</dimen>
-    <dimen name="tv_tab_text_size">17sp</dimen>
+    <dimen name="tv_tab_height">36dp</dimen>
+    <dimen name="tv_tab_text_size">14sp</dimen>
 
-    <dimen name="tv_placeholder_icon">72dp</dimen>
+    <dimen name="tv_placeholder_icon">48dp</dimen>
     <dimen name="tv_placeholder_text">18sp</dimen>
-    <dimen name="tv_placeholder_btn_gap">20dp</dimen>
+    <dimen name="tv_placeholder_btn_gap">16dp</dimen>
 
 </resources>
-

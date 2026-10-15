@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ★ 统一配色令牌（TV 端）★
-  参考云视听小电视 / 奇异果 TV 的深色体系：
+  ★ 统一配色令牌（TV 端）★ —— 本次改版
+  设计原则（沿用并保留）：
    · 底色近黑但不纯黑（纯黑在电视上发闷、且和视频黑边糊成一片）
    · 卡片色比底色亮一档，靠明度差做层次，不靠描边
    · 文字三级：主 / 次 / 弱，明确拉开信息层级
    · 品牌色取抖音红，用于选中态与强调
+  本次改版要点：
+   · 焦点描边由「白色」改为「品牌色」（配合去柔光，焦点更明确）
+   · focus_glow 透明化（保留名字兼容旧布局，效果=去光晕）
+   · 层次一律靠明度差 + 半透明描边，不用粗边框
 -->
 <resources>
     <!-- ==================== 背景层次 ==================== -->
     <color name="bg_root">#FF0B0B0F</color>
-    <!-- 页面底色 -->
+    <!-- 页面底色（近黑不纯黑） -->
     <color name="bg_nav">#FF101015</color>
     <!-- 侧边导航底色（比页面略亮，形成分区） -->
     <color name="bg_surface">#FF16161C</color>
@@ -18,15 +22,15 @@
     <color name="bg_surface_hi">#FF1F1F28</color>
     <!-- 卡片聚焦态（再亮一档） -->
     <color name="bg_chip">#FF23232C</color>
-    <!-- 小按钮 / 标签底色 -->
+    <!-- 小按钮 / 标签 / 分类 chips 底色 -->
 
-    <!-- ==================== 文字层次 ==================== -->
+    <!-- ==================== 文字层次（带透明度：可叠任意底色） ==================== -->
     <color name="text_primary">#FFFFFFFF</color>
-    <!-- 标题 -->
+    <!-- 标题 / 正文 -->
     <color name="text_secondary">#B8FFFFFF</color>
-    <!-- 副信息（作者/时长） -->
+    <!-- 副信息（作者 / 时长 / 播放量） -->
     <color name="text_tertiary">#7AFFFFFF</color>
-    <!-- 提示 / 计数 -->
+    <!-- 提示 / 计数 / 三级信息 -->
     <color name="text_on_brand">#FFFFFFFF</color>
 
     <!-- ==================== 品牌与焦点 ==================== -->
@@ -34,20 +38,26 @@
     <!-- 抖音红 -->
     <color name="brand_dim">#66FE2C55</color>
     <color name="brand_tint">#14FE2C55</color>
-    <!-- 选中项淡品牌底（AppleTV 风格 active 态） -->
-    <color name="focus_stroke">#FFFFFFFF</color>
-    <!-- 焦点描边 -->
-    <color name="focus_glow">#33FFFFFF</color>
+    <!-- 选中项淡品牌底 -->
+    <color name="focus_stroke">#FFFE2C55</color>
+    <!-- ★ 改版：焦点描边 = 品牌色（原为白色） -->
+    <color name="focus_stroke_neutral">#FFFFFFFF</color>
+    <!-- 需要中性焦点时用（如品牌底上的焦点） -->
+    <color name="focus_glow">#00000000</color>
+    <!-- ★ 改版：去柔光（置透明，保留名字兼容旧布局） -->
 
     <!-- ==================== 功能色 ==================== -->
     <color name="accent_warn">#FFFFD54F</color>
     <color name="accent_error">#FFF06292</color>
     <color name="accent_ok">#FF81C784</color>
     <color name="divider">#1AFFFFFF</color>
+    <!-- 分隔线（很淡，靠明度差分层） -->
 
     <!-- ==================== 半透明覆盖层（scrim） ==================== -->
     <color name="scrim_strong">#B3000000</color>
-    <!-- 强覆盖（信息条/提示底） -->
+    <!-- 强覆盖（信息条 / 提示底） -->
     <color name="scrim_overlay">#CC000000</color>
-    <!-- 角标底（时长/竖屏标记） -->
+    <!-- 角标底（时长 / 标记） -->
+    <color name="scrim_panel">#E61A1A22</color>
+    <!-- ★ 新增：底部面板底（暂停菜单等，半透明玻璃感） -->
 </resources>
