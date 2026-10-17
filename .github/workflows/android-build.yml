@@ -104,12 +104,12 @@ jobs:
           GRADLE_OPTS: "-Xmx2048m -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8"
         run: |
           java -cp gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain \
-            :app:assembleDebug --no-daemon --stacktrace \
+            :app:assembleRelease --no-daemon --stacktrace \
             -Dorg.gradle.jvmargs="-Xmx2048m -XX:MaxMetaspaceSize=512m"
 
       - name: Upload Remote APK
         uses: actions/upload-artifact@v4
         with:
-          name: DTV-Remote-apk
-          path: remote/app/build/outputs/apk/debug/*.apk
+          name: DTV-Remote-release-apk
+          path: remote/app/build/outputs/apk/release/*.apk
           if-no-files-found: warn
