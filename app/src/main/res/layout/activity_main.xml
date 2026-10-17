@@ -31,10 +31,10 @@
         android:paddingBottom="@dimen/tv_nav_padding_v">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/space_m"
             android:layout_marginBottom="@dimen/space_m"
+            android:gravity="center"
             android:text="Dtv"
             android:textColor="@color/brand"
             android:textSize="@dimen/tv_nav_logo_size"
@@ -49,7 +49,7 @@
             android:background="@drawable/nav_item_bg"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
             android:drawableTop="@drawable/ic_nav_recommend"
@@ -67,7 +67,7 @@
             android:background="@drawable/nav_item_bg"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
             android:drawableTop="@drawable/ic_nav_search"
@@ -77,10 +77,7 @@
             android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+        <View android:layout_width="match_parent" android:layout_height="@dimen/space_l" />
 
         <View
             android:layout_width="match_parent"
@@ -97,7 +94,7 @@
             android:background="@drawable/nav_item_bg"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
             android:drawableTop="@drawable/ic_nav_history"
@@ -115,7 +112,7 @@
             android:background="@drawable/nav_item_bg"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
             android:drawableTop="@drawable/ic_nav_collect"
@@ -133,7 +130,7 @@
             android:background="@drawable/nav_item_bg"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
             android:drawableTop="@drawable/ic_nav_settings"
@@ -150,7 +147,7 @@
             android:background="@drawable/nav_item_bg"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
             android:drawableTop="@drawable/ic_nav_login"
@@ -183,9 +180,7 @@
                 android:id="@+id/tvSectionTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableTop="@drawable/ic_nav_recommend"
-        android:drawablePadding="@dimen/space_xs"
-        android:includeFontPadding="false"
+
         android:text="推荐"
                 android:textColor="@color/text_primary"
                 android:textSize="@dimen/tv_section_title_size"
@@ -209,7 +204,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:textColor="@color/text_tertiary"
-                android:textSize="@dimen/text_caption" />
+                android:textSize="@dimen/text_caption"     android:visibility="gone"
+                />
         </LinearLayout>
 
         <!-- 分类 Tab 条（★ 常驻：推荐/美食/游戏…横排切频道，内容由代码填充） -->

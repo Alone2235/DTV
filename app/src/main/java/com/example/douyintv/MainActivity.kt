@@ -412,7 +412,11 @@ class MainActivity : Activity() {
         markCategorySelected()
         tvSectionTitle.text = "推荐"
         loadFeed(NAV_RECOMMEND, reset = true)
-        gridView.post { gridView.requestFocus() }
+        gridView.post {
+                // 焦点落到第一张卡（否则遥控器按方向键前没有任何焦点高亮）
+                val first = layoutManager?.findViewByPosition(0)
+                if (first != null) first.requestFocus() else gridView.requestFocus()
+            }
     }
 
     private fun markNavSelected() {
@@ -496,15 +500,17 @@ class MainActivity : Activity() {
             tv.gravity = android.view.Gravity.CENTER
             tv.isFocusable = true
             tv.isFocusableInTouchMode = true
-            tv.setPadding(padH, 0, padH, 0)
-            tv.height = (38 * dp).toInt()
+            // 视觉对齐：分类标签统一固定宽度（视觉等宽），文字内部居中
+            val chipW = resources.getDimensionPixelSize(R.dimen.chip_min_width)
+            val chipH = resources.getDimensionPixelSize(R.dimen.tab_height)
+            tv.gravity = android.view.Gravity.CENTER
+            tv.includeFontPadding = false
+            tv.setPadding(0, 0, 0, 0)
+            tv.height = chipH
             tv.background = resources.getDrawable(R.drawable.tab_item_bg)
             tv.setTextColor(resources.getColorStateList(R.color.tab_text))
-            val lp = android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            lp.rightMargin = (10 * dp).toInt()
+            val lp = android.widget.LinearLayout.LayoutParams(chipW, chipH)
+            lp.rightMargin = resources.getDimensionPixelSize(R.dimen.space_s)
             tv.layoutParams = lp
             tv.setOnClickListener { FocusAnim.press(tv); onCategoryClick(name) }
             tv.setOnFocusChangeListener { v, has -> FocusAnim.scaleTo(v, has, 1.08f) }
@@ -520,7 +526,11 @@ class MainActivity : Activity() {
         markCategorySelected()
         tvSectionTitle.text = name   // ★ 顶栏标题随分类频道切换
         loadCategoryFeed(name, reset = true)
-        gridView.post { gridView.requestFocus() }
+        gridView.post {
+                // 焦点落到第一张卡（否则遥控器按方向键前没有任何焦点高亮）
+                val first = layoutManager?.findViewByPosition(0)
+                if (first != null) first.requestFocus() else gridView.requestFocus()
+            }
     }
 
     private fun markCategorySelected() {
@@ -724,7 +734,11 @@ class MainActivity : Activity() {
                     if (placeholder.visibility == View.VISIBLE) {
                         hidePlaceholder()
                         gridView.visibility = View.VISIBLE
-                        gridView.post { gridView.requestFocus() }
+                        gridView.post {
+                // 焦点落到第一张卡（否则遥控器按方向键前没有任何焦点高亮）
+                val first = layoutManager?.findViewByPosition(0)
+                if (first != null) first.requestFocus() else gridView.requestFocus()
+            }
                         return true
                     }
                     finish()
