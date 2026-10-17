@@ -433,6 +433,22 @@ class MainActivity : Activity() {
             // 改版：没有内容时隐藏信息栏，避免出现一条空黑条
             infobar.visibility = if (title.isBlank() && meta.isBlank()) android.view.View.GONE else android.view.View.VISIBLE
         }
+        // ★ 视觉对称：用 ItemDecoration 统一间距（列间 8dp、行间 8dp），
+        //   最后一列/最后一行不加 gap —— 左右边缘才真正等距（靠 margin 做不到）
+        gridView.addItemDecoration(object : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(
+                outRect: android.graphics.Rect,
+                view: android.view.View,
+                parent: androidx.recyclerview.widget.RecyclerView,
+                state: androidx.recyclerview.widget.RecyclerView.State
+            ) {
+                val pos = parent.getChildAdapterPosition(view)
+                if (pos == androidx.recyclerview.widget.RecyclerView.NO_POSITION) return
+                val gap = (resources.displayMetrics.density * 8).toInt()
+                outRect.right = if (pos % SPAN_COUNT == SPAN_COUNT - 1) 0 else gap
+                outRect.bottom = gap
+            }
+        })
         gridView.adapter = adapter
         // 规则③：RecyclerView 自身可聚焦 + 子项优先获得焦点
         gridView.isFocusable = true
