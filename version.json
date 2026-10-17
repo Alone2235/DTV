@@ -1,8 +1,8 @@
 {
-    "versionCode":  122,
-    "versionName":  "2.22",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.22/Dtv-2.22-release.apk",
-    "sha256":  "c749a31c7bd4bb49f3da62b4d845429607a22fa6f98c80e8df5b7862f731fd8f",
-    "notes":  "1. ★ 正式改用 Release 构建包（不再是 debug 包）：debuggable=false、固定签名、体积更小\n2. 更新包 SHA-256 双重验签（下载+安装前各校验一次）\n3. 签名统一（本地=CI=发布），更新不再报签名不同\n4. 安全加固：配对码不回显/限速/端点补鉴权/allowBackup=false\n5. 外部唤醒入口 + 方向键/OK/返回/菜单",
+    "versionCode":  123,
+    "versionName":  "2.23",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.23/Dtv-2.23-release.apk",
+    "sha256":  "1a679f10fdae2d96d0205017d9c8ba5e100dfae5ee9a2b82503eb1ce6f061640",
+    "notes":  "1. 首页改版：卡片纯封面 + 焦点信息栏 + 5 列等宽自适应\n2. 修复卡片宽度溢出、封面比例变形\n3. 回滚 /savecreds 鉴权，扫码推 cookie 恢复正常\n4. 分类改胶囊 chips；令牌改版（焦点品牌描边去柔光、侧栏 88dp）\n⚠️ 从 2.19 及更早升级需先卸载一次",
     "force":  false
 }
