@@ -70,6 +70,18 @@ class VideoGridAdapter(
         ImageLoader.load(it.coverUrl, holder.cover, it.awemeId)
 
         // 遥控器"确定" → 进入播放页（整卡可点击）
+        // 改版：卡片宽度由 GridLayoutManager 均分，封面按 16:9 自适应高度（避免不同屏宽下溢出/变形）
+        holder.itemView.post {
+            val w = holder.itemView.width
+            if (w > 0) {
+                val h = w * 9 / 16
+                val coverParent = holder.cover.parent as? android.view.View
+                if (coverParent != null && coverParent.layoutParams.height != h) {
+                    coverParent.layoutParams.height = h
+                    coverParent.requestLayout()
+                }
+            }
+        }
         holder.itemView.setOnClickListener { FocusAnim.press(holder.itemView); onClick(position) }
 
         // ★ 10 英尺焦点：聚焦时卡片轻微放大（Netflix / Apple TV 同款反馈），

@@ -229,6 +229,7 @@
               <!-- 改版：焦点信息栏（卡片纯封面，标题/作者只在此显示；一屏一个信息焦点） -->
               <LinearLayout
                   android:id="@+id/infobar"
+                  android:visibility="gone"
                   android:layout_width="match_parent"
                   android:layout_height="@dimen/infobar_height"
                   android:layout_gravity="bottom"

@@ -72,6 +72,7 @@ class MainActivity : Activity() {
     // 改版：焦点信息栏（卡片纯封面后，标题/作者在此显示）
     private lateinit var tvInfoTitle: TextView
     private lateinit var tvInfoMeta: TextView
+    private lateinit var infobar: android.view.View
 
     // ---- 占位区 ----
     private lateinit var placeholder: View
@@ -347,6 +348,7 @@ class MainActivity : Activity() {
         gridView = findViewById(R.id.gridView) as RecyclerView
         tvInfoTitle = findViewById(R.id.tvInfoTitle) as TextView
         tvInfoMeta = findViewById(R.id.tvInfoMeta) as TextView
+        infobar = findViewById(R.id.infobar)
 
         tabScroll = findViewById(R.id.tabScroll)
         tabContainer = findViewById(R.id.tabContainer) as android.widget.LinearLayout
@@ -428,6 +430,8 @@ class MainActivity : Activity() {
         adapter.onFocusItem = { title, meta ->
             tvInfoTitle.text = title
             tvInfoMeta.text = meta
+            // 改版：没有内容时隐藏信息栏，避免出现一条空黑条
+            infobar.visibility = if (title.isBlank() && meta.isBlank()) android.view.View.GONE else android.view.View.VISIBLE
         }
         gridView.adapter = adapter
         // 规则③：RecyclerView 自身可聚焦 + 子项优先获得焦点
