@@ -54,7 +54,7 @@ object ExternalActions {
     private fun toast(ctx: Context, msg: String) {
         val a = App.currentActivity() ?: return
         a.runOnUiThread {
-            try { Toast.makeText(a, msg, Toast.LENGTH_SHORT).show() } catch (_: Throwable) {}
+            try { CustomToast.show(a, msg) } catch (_: Throwable) {}
         }
     }
 

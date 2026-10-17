@@ -112,13 +112,13 @@ class LoginActivity : Activity() {
                 Log.d(TAG, "收到 Cookie 长度=${cookie.length}")
                 handler.post {
                     render()
-                    Toast.makeText(this, "已登录 ✓", Toast.LENGTH_SHORT).show()
+                    CustomToast.show(this, "已登录 ✓")
                 }
             }.also { it.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false) }
             Log.d(TAG, "推送服务已启动: ${urlText()}")
         } catch (e: Exception) {
             Log.e(TAG, "服务启动失败", e)
-            Toast.makeText(this, "推送服务启动失败: ${e.message}", Toast.LENGTH_LONG).show()
+            CustomToast.show(this, "推送服务启动失败: ${e.message}")
         }
     }
 
@@ -181,7 +181,7 @@ class LoginActivity : Activity() {
             .setPositiveButton("保存") { _, _ ->
                 Prefs.setCookie(this, et.text.toString())
                 render()
-                Toast.makeText(this, "已登录 ✓", Toast.LENGTH_SHORT).show()
+                CustomToast.show(this, "已登录 ✓")
             }
             .setNegativeButton("取消", null)
             .show()
@@ -194,7 +194,7 @@ class LoginActivity : Activity() {
             .setPositiveButton("退出") { _, _ ->
                 Prefs.setCookie(this, "")
                 render()
-                Toast.makeText(this, "已退出登录", Toast.LENGTH_SHORT).show()
+                CustomToast.show(this, "已退出登录")
             }
             .setNegativeButton("取消", null)
             .show()
@@ -202,7 +202,7 @@ class LoginActivity : Activity() {
 
     private fun goPlay() {
         if (!Prefs.hasCookie(this)) {
-            Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show()
+            CustomToast.show(this, "请先登录")
             return
         }
         startActivity(Intent(this, MainActivity::class.java))
