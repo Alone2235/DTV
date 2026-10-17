@@ -99,6 +99,10 @@
     <!-- 原 17sp -->
     <dimen name="tab_padding_h">16dp</dimen>
     <dimen name="chip_radius">18dp</dimen>
+    <!-- ★ 视觉等宽：分类标签固定宽度，2 字词也不会因文字宽窄而大小不一 -->
+    <dimen name="chip_min_width">92dp</dimen>
+    <!-- 图标相对 13sp 文字的视觉重量平衡（24dp 显得过重） -->
+    <dimen name="nav_icon_dp">20dp</dimen>
     <!-- 胶囊 -->
 
     <!-- ============ 通用按钮（保留：电视焦点目标不宜缩小） ============ -->
