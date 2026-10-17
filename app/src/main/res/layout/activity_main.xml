@@ -188,7 +188,6 @@
                 android:id="@+id/tvCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/space_m"
                 android:textColor="@color/text_tertiary"
                 android:textSize="@dimen/text_caption" />
 
@@ -267,7 +266,6 @@
                       android:id="@+id/tvInfoMeta"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:layout_marginLeft="@dimen/space_m"
                       android:ellipsize="end"
                       android:maxLines="1"
                       android:textColor="@color/text_secondary"
