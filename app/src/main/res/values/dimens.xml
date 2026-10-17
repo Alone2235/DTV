@@ -52,15 +52,15 @@
     <!-- ★ 0 = 去柔光（原 4dp） -->
 
     <!-- ============ 侧边导航（改版：收窄） ============ -->
-    <dimen name="tv_nav_width">88dp</dimen>
+    <dimen name="tv_nav_width">60dp</dimen>
     <!-- 原 178dp -->
     <dimen name="tv_nav_padding_h">8dp</dimen>
     <dimen name="tv_nav_padding_v">12dp</dimen>
-    <dimen name="tv_nav_item_height">52dp</dimen>
+    <dimen name="tv_nav_item_height">56dp</dimen>
     <!-- 图标 + 小字 -->
     <dimen name="tv_nav_item_margin_v">4dp</dimen>
-    <dimen name="tv_nav_text_size">13sp</dimen>
-    <dimen name="tv_nav_icon_size">20dp</dimen>
+    <dimen name="tv_nav_text_size">12sp</dimen>
+    <dimen name="tv_nav_icon_size">26dp</dimen>
     <dimen name="tv_nav_logo_size">26dp</dimen>
 
     <!-- ============ 内容区（改版：边距对齐 16dp） ============ -->

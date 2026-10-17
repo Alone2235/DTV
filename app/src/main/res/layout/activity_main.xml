@@ -55,8 +55,8 @@
             android:drawableTop="@drawable/ic_nav_recommend"
         android:drawablePadding="@dimen/space_xs"
         android:includeFontPadding="false"
-        android:text="推荐"
-            android:textColor="@color/text_state"
+                            android:contentDescription="推荐"
+android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
         <TextView
@@ -73,8 +73,8 @@
             android:drawableTop="@drawable/ic_nav_search"
         android:drawablePadding="@dimen/space_xs"
         android:includeFontPadding="false"
-        android:text="搜索"
-            android:textColor="@color/text_state"
+                            android:contentDescription="搜索"
+android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
         <View android:layout_width="match_parent" android:layout_height="@dimen/space_l" />
@@ -100,8 +100,8 @@
             android:drawableTop="@drawable/ic_nav_history"
         android:drawablePadding="@dimen/space_xs"
         android:includeFontPadding="false"
-        android:text="历史"
-            android:textColor="@color/text_state"
+                            android:contentDescription="历史"
+android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
         <TextView
@@ -118,8 +118,8 @@
             android:drawableTop="@drawable/ic_nav_collect"
         android:drawablePadding="@dimen/space_xs"
         android:includeFontPadding="false"
-        android:text="收藏"
-            android:textColor="@color/text_state"
+                            android:contentDescription="收藏"
+android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
         <TextView
@@ -136,8 +136,8 @@
             android:drawableTop="@drawable/ic_nav_settings"
         android:drawablePadding="@dimen/space_xs"
         android:includeFontPadding="false"
-        android:text="设置"
-            android:textColor="@color/text_state"
+                            android:contentDescription="设置"
+android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
         <TextView
@@ -153,8 +153,8 @@
             android:drawableTop="@drawable/ic_nav_login"
         android:drawablePadding="@dimen/space_xs"
         android:includeFontPadding="false"
-        android:text="登录"
-            android:textColor="@color/text_state"
+                            android:contentDescription="登录"
+android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
     </LinearLayout>
 
