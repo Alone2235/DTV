@@ -52,7 +52,9 @@
             android:gravity="center_vertical"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
-            android:text="推荐"
+            android:drawableTop="@drawable/ic_nav_recommend"
+        android:drawablePadding="@dimen/space_xs"
+        android:text="推荐"
             android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
@@ -67,7 +69,9 @@
             android:gravity="center_vertical"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
-            android:text="搜索"
+            android:drawableTop="@drawable/ic_nav_search"
+        android:drawablePadding="@dimen/space_xs"
+        android:text="搜索"
             android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
@@ -94,7 +98,9 @@
             android:gravity="center_vertical"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
-            android:text="历史"
+            android:drawableTop="@drawable/ic_nav_history"
+        android:drawablePadding="@dimen/space_xs"
+        android:text="历史"
             android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
@@ -109,7 +115,9 @@
             android:gravity="center_vertical"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
-            android:text="收藏"
+            android:drawableTop="@drawable/ic_nav_collect"
+        android:drawablePadding="@dimen/space_xs"
+        android:text="收藏"
             android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
@@ -124,7 +132,9 @@
             android:gravity="center_vertical"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
-            android:text="设置"
+            android:drawableTop="@drawable/ic_nav_settings"
+        android:drawablePadding="@dimen/space_xs"
+        android:text="设置"
             android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
 
@@ -138,7 +148,9 @@
             android:gravity="center_vertical"
             android:paddingLeft="@dimen/space_m"
             android:paddingRight="@dimen/space_m"
-            android:text="登录"
+            android:drawableTop="@drawable/ic_nav_login"
+        android:drawablePadding="@dimen/space_xs"
+        android:text="登录"
             android:textColor="@color/text_state"
             android:textSize="@dimen/tv_nav_text_size" />
     </LinearLayout>
@@ -165,7 +177,9 @@
                 android:id="@+id/tvSectionTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="推荐"
+                android:drawableTop="@drawable/ic_nav_recommend"
+        android:drawablePadding="@dimen/space_xs"
+        android:text="推荐"
                 android:textColor="@color/text_primary"
                 android:textSize="@dimen/tv_section_title_size"
                 android:textStyle="bold" />

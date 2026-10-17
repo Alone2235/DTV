@@ -11,14 +11,13 @@ android {
         applicationId 'com.example.douyintv'
         minSdk 17
         targetSdk 26
-        versionCode 123            // ★ 版本号规则（用户定）：对外显示十进制小进位 —— 1.99 → 2.00 → 2.01 …
+        versionCode 124            // ★ 版本号规则（用户定）：对外显示十进制小进位 —— 1.99 → 2.00 → 2.01 …
             //   versionCode 只保证单调递增（Android 升级判断），与显示名不必一一对应。
             //   例：code 99 → "1.99"，code 100 → "2.00"，code 101 → "2.01"。
-            versionName "2.23"
+            versionName "2.24"
 
         // ★ 只打 32 位原生库（体积优化）★
         //   目标机是 Cortex-A7 + Android 4.2 —— 32 位 ARM。
-        //   arm64-v8a 支持是 Android 5.0 (API 21) 才引入的，本机 API 17
         //   连 64 位 .so 都无法加载，打进去纯属死重量。
         //   实测省下约 2.7 MB：ijkffmpeg/ijkplayer/ijksdl/conscrypt 各一份。
         //   若将来要上 64 位盒子，把 'arm64-v8a' 加回这个列表即可。
@@ -30,6 +29,9 @@ android {
         //   support 版 multidex 不会牵入 AndroidX（AGP 只在
         //   androidx.multidex 缺失时才自动补，此处已显式声明 support 版）。
         multiDexEnabled true
+
+        // API 17 不支持原生 VectorDrawable：让 AGP 为矢量图标生成各密度 PNG
+        vectorDrawables { generatedDensities = ['mdpi', 'hdpi', 'xhdpi'] }
     }
     signingConfigs {
         release {
@@ -58,7 +60,8 @@ android {
     }
     kotlinOptions { jvmTarget = '1.8' }
     lint { abortOnError false; checkReleaseBuilds false }
-    buildFeatures { buildConfig = true }   // ★ AGP 8 默认关：代码里要读 BuildConfig.VERSION_NAME
+    buildFeatures { buildConfig = true }
+    // AGP 8 默认关：代码里要读 BuildConfig.VERSION_NAME
     packagingOptions {
         jniLibs { useLegacyPackaging = true }
         doNotStrip '**/*.so'
