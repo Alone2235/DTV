@@ -545,7 +545,8 @@ class ConfigServer(
      * 文本格式：每行 key=value 或 key:value（可在浏览器控制台粘贴 localStorage 导出）。
      */
     private fun saveCreds(session: IHTTPSession): Response {
-        if (!authed(session)) return newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "未授权（配对码错误或不在白名单）")
+        // 热修复回滚（2026-10）：扫码网页由 TV 自身伺服，推 cookie 不带 code/uuid，authed() 会误杀
+        // 正确修法：二维码/页面携带配对码（见 docs/DESIGN.md 逻辑不变量）
         return try {
             val files = HashMap<String, String>()
             session.parseBody(files)
@@ -566,7 +567,8 @@ class ConfigServer(
     }
 
     private fun save(session: IHTTPSession): Response {
-        if (!authed(session)) return newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "未授权（配对码错误或不在白名单）")
+        // 热修复回滚（2026-10）：扫码网页由 TV 自身伺服，推 cookie 不带 code/uuid，authed() 会误杀
+        // 正确修法：二维码/页面携带配对码（见 docs/DESIGN.md 逻辑不变量）
         return try {
             val files = HashMap<String, String>()
             session.parseBody(files)
