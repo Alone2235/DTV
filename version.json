@@ -1,8 +1,8 @@
 {
-    "versionCode":  123,
-    "versionName":  "2.23",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.23/Dtv-2.23-release.apk",
-    "sha256":  "1a679f10fdae2d96d0205017d9c8ba5e100dfae5ee9a2b82503eb1ce6f061640",
-    "notes":  "1. 首页改版：卡片纯封面 + 焦点信息栏 + 5 列等宽自适应\n2. 修复卡片宽度溢出、封面比例变形\n3. 回滚 /savecreds 鉴权，扫码推 cookie 恢复正常\n4. 分类改胶囊 chips；令牌改版（焦点品牌描边去柔光、侧栏 88dp）\n⚠️ 从 2.19 及更早升级需先卸载一次",
+    "versionCode":  124,
+    "versionName":  "2.24",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.24/Dtv-2.24-release.apk",
+    "sha256":  "21137e2e38c7e89f5d19970a020f61a08784d922b4444e0f629e21427234bc78",
+    "notes":  "1. 侧栏 6 个导航项加矢量图标（图标 + 小字）\n2. 分类改胶囊 chips\n3. 修复 API17 矢量图标兼容（AGP 生成各密度 PNG）\n4. 含 2.23 首页改版：纯封面 + 焦点信息栏 + 5 列自适应\n⚠️ 从 2.19 及更早升级需先卸载一次",
     "force":  false
 }
