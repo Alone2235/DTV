@@ -88,14 +88,19 @@ class VideoGridAdapter(
         //   叠加 focus_card 的白描边 + 柔光，3 米外一眼能锁定当前卡片
         //   统一走 FocusAnim（ease-out 140ms，全应用手感一致）
         holder.itemView.setOnFocusChangeListener { v, has ->
-                        FocusAnim.scaleTo(v, has, 1.04f)
-                        // 改版：焦点项信息送到信息栏（卡片本身不再显示标题）
-                        if (has) {
-                            val tvT = v.findViewById(R.id.tvTitle) as? android.widget.TextView
-                            val tvM = v.findViewById(R.id.tvMeta) as? android.widget.TextView
-                            onFocusItem?.invoke(tvT?.text?.toString() ?: "", tvM?.text?.toString() ?: "")
-                        }
-                    }
+            FocusAnim.scaleTo(v, has, 1.04f)
+            // 邻近原则：标题浮在焦点卡片封面底部（不放屏幕底栏）
+            // 标题/副信息同时送给首页信息栏作为补充（信息栏是补充，不是主体）
+            val cap = v.findViewById(R.id.captionBox) as? android.view.View
+            val capTv = v.findViewById(R.id.tvCaption) as? android.widget.TextView
+            val tvT = v.findViewById(R.id.tvTitle) as? android.widget.TextView
+            val tvM = v.findViewById(R.id.tvMeta) as? android.widget.TextView
+            capTv?.text = tvT?.text
+            cap?.visibility = if (has) android.view.View.VISIBLE else android.view.View.GONE
+            if (has) {
+                onFocusItem?.invoke(tvT?.text?.toString() ?: "", tvM?.text?.toString() ?: "")
+            }
+        }
     }
 
     /** 切换分类：整体替换 */

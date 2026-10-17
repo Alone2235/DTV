@@ -71,7 +71,28 @@
             android:textColor="@color/text_primary"
             android:textSize="@dimen/tv_card_duration_bg_size"
             android:visibility="gone" />
+            <!-- ★ 邻近原则：标题浮在封面底部（焦点时显示），不放到屏幕底栏 -->
+        <LinearLayout
+            android:id="@+id/captionBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@color/scrim_overlay"
+            android:orientation="vertical"
+            android:padding="@dimen/space_s"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvCaption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/card_title_size" />
+        </LinearLayout>
     </FrameLayout>
+
 
     <!-- 信息区：本次改版置 gone（纯封面）。
          id 保留 → 适配器绑定不崩溃；标题/副信息改由首页「焦点信息栏」显示。 -->
