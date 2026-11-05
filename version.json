@@ -1,8 +1,8 @@
 {
-    "versionCode":  124,
-    "versionName":  "2.24",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.24/Dtv-2.24-release.apk",
-    "sha256":  "21137e2e38c7e89f5d19970a020f61a08784d922b4444e0f629e21427234bc78",
-    "notes":  "1. 侧栏 6 个导航项加矢量图标（图标 + 小字）\n2. 分类改胶囊 chips\n3. 修复 API17 矢量图标兼容（AGP 生成各密度 PNG）\n4. 含 2.23 首页改版：纯封面 + 焦点信息栏 + 5 列自适应\n⚠️ 从 2.19 及更早升级需先卸载一次",
+    "versionCode":  126,
+    "versionName":  "2.26",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.26/Dtv-2.26-release.apk",
+    "sha256":  "cfcd6eeef4613ad19ef1880dac146e4dfd61cd74a541139ad13c7e53f1799052",
+    "notes":  "1. 侧栏改纯图标导轨（去文字标签，图标 26dp/导轨 60dp）\n2. 视觉对齐：分类等宽/卡片等距/标题浮在焦点卡上\n3. 自绘 Toast 替换系统 Toast\n版本 2.26",
     "force":  false
 }
