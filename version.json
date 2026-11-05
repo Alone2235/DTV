@@ -1,8 +1,8 @@
 {
-    "versionCode":  126,
-    "versionName":  "2.26",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.26/Dtv-2.26-release.apk",
-    "sha256":  "cfcd6eeef4613ad19ef1880dac146e4dfd61cd74a541139ad13c7e53f1799052",
-    "notes":  "1. 侧栏改纯图标导轨（去文字标签，图标 26dp/导轨 60dp）\n2. 视觉对齐：分类等宽/卡片等距/标题浮在焦点卡上\n3. 自绘 Toast 替换系统 Toast\n版本 2.26",
+    "versionCode":  127,
+    "versionName":  "2.27",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.27/Dtv-2.27-release.apk",
+    "sha256":  "ef38bf549d6e0ec43aad71b966b941bd701c65ce45bc26a57812e612aacd928d",
+    "notes":  "1. 砍首页底部信息栏（焦点卡就近显示）\n2. 列表增量刷新 + 动画（不再硬切）\n3. 新增体感/逻辑审计清单",
     "force":  false
 }
