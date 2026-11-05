@@ -105,9 +105,12 @@ class VideoGridAdapter(
 
     /** 切换分类：整体替换 */
     fun replaceAll(newItems: List<DouyinApi.VideoItem>) {
+        // H3：增量通知代替 notifyDataSetChanged —— 让 DefaultItemAnimator 接管（淡入/移动），避免整屏硬切
+        val oldCount = items.size
         items.clear()
         items.addAll(newItems)
-        notifyDataSetChanged()
+        if (oldCount > 0) notifyItemRangeRemoved(0, oldCount)
+        if (items.isNotEmpty()) notifyItemRangeInserted(0, items.size)
     }
 
     /** 分页追加 */

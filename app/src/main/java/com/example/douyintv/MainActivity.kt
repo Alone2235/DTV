@@ -434,8 +434,7 @@ class MainActivity : Activity() {
         adapter.onFocusItem = { title, meta ->
             tvInfoTitle.text = title
             tvInfoMeta.text = meta
-            // 改版：没有内容时隐藏信息栏，避免出现一条空黑条
-            infobar.visibility = if (title.isBlank() && meta.isBlank()) android.view.View.GONE else android.view.View.VISIBLE
+            // H2：底栏已砍，信息只在焦点卡片就近显示
         }
         // ★ 视觉对称：用 ItemDecoration 统一间距（列间 8dp、行间 8dp），
         //   最后一列/最后一行不加 gap —— 左右边缘才真正等距（靠 margin 做不到）
