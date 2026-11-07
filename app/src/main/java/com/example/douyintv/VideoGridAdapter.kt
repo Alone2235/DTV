@@ -105,12 +105,12 @@ class VideoGridAdapter(
 
     /** 切换分类：整体替换 */
     fun replaceAll(newItems: List<DouyinApi.VideoItem>) {
-        // H3：增量通知代替 notifyDataSetChanged —— 让 DefaultItemAnimator 接管（淡入/移动），避免整屏硬切
-        val oldCount = items.size
+        // 稳定性优先：v2.28 的增量通知（remove+insert 组合）在切分类时触发
+        // RecyclerView 一致性崩溃（点分类闪退的元凶），回滚为全量刷新。
+        // 动画以后用 DiffUtil 单独补，不再用这个组合。
         items.clear()
         items.addAll(newItems)
-        if (oldCount > 0) notifyItemRangeRemoved(0, oldCount)
-        if (items.isNotEmpty()) notifyItemRangeInserted(0, items.size)
+        notifyDataSetChanged()
     }
 
     /** 分页追加 */

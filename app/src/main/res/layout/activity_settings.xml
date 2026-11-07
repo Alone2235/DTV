@@ -52,6 +52,21 @@
         android:text="■  黑方块诊断（纯白页）"
         android:textColor="@color/btn_text"
         android:textSize="@dimen/text_body" />
+<TextView
+        android:id="@+id/btnGear"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tv_btn_height"
+        android:layout_marginBottom="@dimen/space_s"
+        android:background="@drawable/focus_chip"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/space_l"
+        android:paddingRight="@dimen/space_l"
+        android:text="画质档位：1080P（点击循环切换 1080 / 720 / 480 / 自动）"
+        android:textColor="@color/btn_text"
+        android:textSize="@dimen/text_body" />
+
 
     <TextView
         android:id="@+id/btnProbe"

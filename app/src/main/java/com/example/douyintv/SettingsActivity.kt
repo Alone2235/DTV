@@ -33,8 +33,9 @@ class SettingsActivity : Activity() {
             val btnDiag = findViewById(R.id.btnDiag) as TextView
             val btnProbe = findViewById(R.id.btnProbe) as TextView
             val btnAbout = findViewById(R.id.btnAbout) as TextView
+            val btnGear = findViewById(R.id.btnGear) as TextView
 
-            setupTvFocus(btnDiag, btnProbe, btnAbout)
+            setupTvFocus(btnDiag, btnProbe, btnAbout, btnGear)
             // 黑方块来源诊断页入口（判定方法见 WhiteTestActivity 注释）
             btnDiag.setOnClickListener {
                 startActivity(Intent(this, WhiteTestActivity::class.java))
@@ -46,6 +47,23 @@ class SettingsActivity : Activity() {
             // 关于：作者 / 主页二维码 / 版本与签名指纹
             btnAbout.setOnClickListener {
                 startActivity(Intent(this, AboutActivity::class.java))
+            }
+            // ★ 画质档位：1080P 起步，点击循环 1080 -> 720 -> 480 -> 自动
+            val gearOrder = arrayOf("1080", "720", "480", "auto")
+            fun gearLabel(v: String): String = when (v) {
+                "1080" -> "1080P（默认，H.264 硬解档）"
+                "720" -> "720P"
+                "480" -> "480P（省流量）"
+                else -> "自动（选最高可用档）"
+            }
+            btnGear.text = "画质档位：" + gearLabel(Prefs.getQualityGear()) + "（点击切换）"
+            btnGear.setOnClickListener {
+                val cur = Prefs.getQualityGear()
+                val idx = gearOrder.indexOf(cur).let { if (it < 0) 0 else it }
+                val next = gearOrder[(idx + 1) % gearOrder.size]
+                Prefs.setQualityGear(next)
+                btnGear.text = "画质档位：" + gearLabel(next) + "（点击切换）"
+                CustomToast.show(this, "画质已切换：" + gearLabel(next))
             }
 
             // 解码器探测：这台电视到底有没有可用的视频硬解，一看便知。
