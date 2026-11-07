@@ -1,8 +1,8 @@
 {
-    "versionCode":  128,
-    "versionName":  "2.28",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.28/Dtv-2.28-release.apk",
-    "sha256":  "708de8958391ad63b9f2326fea85a13e4a9d8ba14e31ab7a7bcc872b07899dc2",
-    "notes":  "1. 默认 1080P（H.264 硬解），废除降 540P 回归\n2. 档位偏好可调（1080/720/480/auto）\n3. 评论区收窄",
+    "versionCode":  129,
+    "versionName":  "2.29",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.29/Dtv-2.29-release.apk",
+    "sha256":  "a2b65ccb0d582a845682f30696670dff0a608a9d14b2afccd37d84066ed1f69a",
+    "notes":  "1. 修复点击分类闪退\n2. 画质档位入口上线（设置页：1080P/720P/480P/自动）",
     "force":  false
 }
