@@ -1,8 +1,8 @@
 {
-    "versionCode":  129,
-    "versionName":  "2.29",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.29/Dtv-2.29-release.apk",
-    "sha256":  "a2b65ccb0d582a845682f30696670dff0a608a9d14b2afccd37d84066ed1f69a",
-    "notes":  "1. 修复点击分类闪退\n2. 画质档位入口上线（设置页：1080P/720P/480P/自动）",
+    "versionCode":  130,
+    "versionName":  "2.30",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.30/Dtv-2.30-release.apk",
+    "sha256":  "784d8dc744dc8d108cedd647008bde35948d6283d6f3114fd35a38de03b953fa",
+    "notes":  "1. 画质档位进播放页菜单（切换立即生效）\n2. 修复暂停后按方向键视频划走\n3. 1080P 起步（2.28 修复继续生效）",
     "force":  false
 }
