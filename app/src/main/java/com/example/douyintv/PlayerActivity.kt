@@ -185,6 +185,11 @@ class PlayerActivity : Activity(), SurfaceHolder.Callback, VideoEngine.Listener,
         }
     }
     private var controlsVisible = true
+    /** 当前弹层菜单对话框；显示中时所有按键交给它（修「暂停后按方向键切走视频」） */
+    private var menuDialog: android.app.Dialog? = null
+    /** 画质切换后的重解析结果：仅对 overrideForIndex 这一条生效，切视频自动失效 */
+    private var qualityOverride: DouyinApi.VideoItem? = null
+    private var overrideForIndex: Int = -1
 
     /**
      * 数据来源（feed / author / search）。
@@ -430,7 +435,13 @@ class PlayerActivity : Activity(), SurfaceHolder.Callback, VideoEngine.Listener,
     }
 
     private fun currentEngine(): VideoEngine = engines[engineIndex]
-    private fun cur(): DouyinApi.VideoItem? = items.getOrNull(currentIndex)
+private fun cur(): DouyinApi.VideoItem? {
+        // 画质切换后：当前这条用重解析结果（1080P 主链），换视频自动失效
+        if (overrideForIndex == currentIndex) {
+            qualityOverride?.let { return it }
+        }
+        return items.getOrNull(currentIndex)
+    }
 
     // ---------------- 控制栏 ----------------
     // ★ 用 visibility 直接切换，不用 ViewPropertyAnimator：
@@ -824,7 +835,7 @@ class PlayerActivity : Activity(), SurfaceHolder.Callback, VideoEngine.Listener,
         val msg = if (errHistory.isEmpty()) "本轮没有播放错误 ✓"
         else errHistory.joinToString("\n\n")
         try {
-            AlertDialog.Builder(this)
+            val dlg = AlertDialog.Builder(this)
                 .setTitle("最近播放错误（${errHistory.size}）")
                 .setMessage(msg)
                 .setPositiveButton("知道了", null)
@@ -856,11 +867,12 @@ class PlayerActivity : Activity(), SurfaceHolder.Callback, VideoEngine.Listener,
             "竖屏过滤 · ${if (landscapeOn) "仅横屏" else "全部"}",
             "弹幕 · ${if (Prefs.getDanmaku()) "开" else "关"}（评论区文案）",
             "最近错误（${errHistory.size} 条）",
-            "打开设置 / 重新配置 Cookie"
+            "打开设置 / 重新配置 Cookie",
+            "画质档位 · 当前 " + Prefs.getQualityGear()
         )
         showControls()
         try {
-            AlertDialog.Builder(this)
+            val dlg = AlertDialog.Builder(this)
                 .setTitle(it?.desc?.take(30)?.ifBlank { "菜单" } ?: "菜单")
                 .setItems(labels) { _, which ->
                     when (which) {
@@ -906,13 +918,54 @@ class PlayerActivity : Activity(), SurfaceHolder.Callback, VideoEngine.Listener,
                             startActivity(Intent(this, SettingsActivity::class.java))
                             finish()
                         }
+                        11 -> showQualityDialog()
                     }
                     showControls()
                 }
                 .setOnCancelListener { showControls() }
                 .show()
+                dlg.setOnDismissListener { menuDialog = null }
         } catch (e: Exception) {
             Log.e(TAG, "菜单失败", e)
+        }
+    }
+
+    /** 画质档位二级选择：写 Prefs 并重载当前视频（与「换线路」同交互，立即生效） */
+    private fun showQualityDialog() {
+        val gears = arrayOf("1080", "720", "480", "auto")
+        val labels = arrayOf(
+            "1080P（默认 · H.264 硬解）",
+            "720P",
+            "480P（省流量）",
+            "自动（选最高可用档）"
+        )
+        try {
+            AlertDialog.Builder(this)
+                .setTitle("画质档位")
+                .setItems(labels) { _, which ->
+                    Prefs.setQualityGear(gears[which])
+                    flash("画质：" + labels[which] + "，重新解析当前视频")
+                    val it0 = cur()
+                    val vid = it0?.awemeId ?: ""
+                    val pos = currentIndex
+                    Thread {
+                        val d = if (vid.isBlank()) null else try {
+                            DouyinApi.fetchVideoDetail(Prefs.getCookie(this), vid)
+                        } catch (_: Throwable) { null }
+                        handler.post {
+                            if (pos == currentIndex && d != null && d.videoUrl.isNotBlank()) {
+                                qualityOverride = d
+                                overrideForIndex = pos
+                                playCurrent()
+                            } else {
+                                playCurrent()
+                            }
+                        }
+                    }.start()
+                }
+                .show()
+        } catch (e: Exception) {
+            Log.e(TAG, "画质菜单失败", e)
         }
     }
 
@@ -1433,6 +1486,7 @@ class PlayerActivity : Activity(), SurfaceHolder.Callback, VideoEngine.Listener,
     // ---------------- 遥控器 ----------------
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN) {
+            if (menuDialog?.isShowing == true) return super.dispatchKeyEvent(event)
             if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
                 event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
                 event.keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
