@@ -704,14 +704,14 @@ object DouyinApi {
         fun isAudioOnly(us: List<String>): Boolean =
             us.isNotEmpty() && us[0].contains("media-audio-")
 
-        var muxRate = Int.MAX_VALUE; var muxUrls: List<String>? = null; var muxGear = ""
         var vidRate = Int.MAX_VALUE; var vidUrls: List<String>? = null; var vidGear = ""
+        val muxed = mutableListOf<Triple<String, Int, List<String>>>()  // (档名, 码率, 地址) —— H.264 复用档
 
         for (i in 0 until arr.length()) {
             val g = arr.optJSONObject(i) ?: continue
             val br = g.optInt("bit_rate", Int.MAX_VALUE)
             if (br <= 0) continue
-            // ① 跳过 HEVC：本机硬解不支持
+            // ① 跳过 HEVC：本机硬解不支持（真机结论，详见上方大段注释）
             if (g.optInt("is_h265", 0) == 1 || g.optInt("is_bytevc1", 0) == 1) continue
             val us = urlsOf(g.optJSONObject("play_addr") ?: continue)
             if (us.isEmpty() || isAudioOnly(us)) continue
@@ -720,30 +720,32 @@ object DouyinApi {
                 // ② 纯视频流：能硬解但没声音，只作最后兜底
                 if (br < vidRate) { vidRate = br; vidUrls = us; vidGear = gear }
             } else {
-                // ★ 82.x: 档位按机型分流（不再写死 540p）：
-                //   · 老设备（软解）：优先 540p/480p —— 软解扛得住、画质可接受；
-                //   · 正常设备（硬解）：优先 1080p/720p —— 硬解无压力，高清优先。
-                //   目标档内取码率最低者（省带宽）；无目标档时回落最低码率。
-                val preferHi = !DeviceProfile.isLegacy
-                val t1 = if (preferHi) "1080" else "540"
-                val t2 = if (preferHi) "720" else "480"
-                val isTarget = gear.contains(t1) || gear.contains(t2)
-                if (isTarget && br < muxRate) { muxRate = br; muxUrls = us; muxGear = gear }
-                else if (!isTarget && !muxGear.contains(t1) && !muxGear.contains(t2) && br < muxRate) {
-                    muxRate = br; muxUrls = us; muxGear = gear
-                }
+                muxed.add(Triple(gear, br, us))
             }
         }
 
-        // ③ 首选音视频复用；实在没有才用纯视频（至少画面能动）
-        //    另外把主链 play_addr 也塞进备选（它通常是复用的，且能兜住时效）
+        // ③ 首选音视频复用；主链 play_addr 兜底；纯视频最后（画面能动）
         val main = urlsOf(videoObj.optJSONObject("play_addr") ?: JSONObject())
+
+        // ★ 用户要求：1080P 起步 + 分档可调。
+        //   历史教训：82.x 引入的「isLegacy 一刀切降 540P」是错的 ——
+        //   创维 8S52 有 AVC 硬解，真机验证 normal_1080_0（4.57Mbps H.264）流畅且清晰；
+        //   而 540P HEVC/软解 = 卡顿 + 音画漂移（Engines.kt 315 行注释自证）。
+        //   档位偏好 Prefs.qualityGear："1080"(默认) / "720" / "480" / "auto"(码率最高可用档)
+        val pref = Prefs.getQualityGear()
+        val sorted = muxed.sortedByDescending { it.second }
+        val chosen = when (pref) {
+            "auto" -> sorted.firstOrNull()
+            else -> sorted.firstOrNull { it.first.contains(pref) }
+                ?: sorted.firstOrNull { it.first.contains(if (pref == "480") "540" else "1080") }
+                ?: sorted.firstOrNull()
+        }
 
         val pick: List<String>
         val gear: String
         val rate: Int
-        if (muxUrls != null) {
-            pick = muxUrls; gear = muxGear; rate = muxRate
+        if (chosen != null) {
+            pick = chosen.third; gear = chosen.first; rate = chosen.second
         } else if (main.isNotEmpty()) {
             pick = main; gear = "主链"; rate = 0
         } else if (vidUrls != null) {

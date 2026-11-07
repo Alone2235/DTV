@@ -222,6 +222,17 @@ object Prefs {
     // ★ 用 java.util.Random：ThreadLocalRandom 是 API 21+，本机 API 17 会 NoSuchMethodError
     private val pairRnd = java.util.Random()
 
+    /** ★ 画质档位偏好：1080(默认)/720/480/auto(最高可用 H.264 复用档) */
+    fun getQualityGear(): String {
+        val c = App.appContext() ?: return "1080"
+        return ctx(c).getString("quality_gear", "1080") ?: "1080"
+    }
+
+    fun setQualityGear(v: String) {
+        val c = App.appContext() ?: return
+        ctx(c).edit().putString("quality_gear", v).apply()
+    }
+
     fun getPairCode(): String {
         val c = App.appContext() ?: return "000000"
         var code: String = ctx(c).getString("pair_code", "") ?: ""

@@ -53,7 +53,7 @@ class CommentDialogFragment : DialogFragment() {
         private const val PAGE = 20
 
         /** 面板占屏宽比例。0.34 ≈ 1/3，横屏视频下遮挡最小又不挤 */
-        private const val WIDTH_RATIO = 0.34f
+        private const val WIDTH_RATIO = 0.28f
 
         /** 面板占屏高比例，留上下边距让"这是浮层"更明确 */
         private const val HEIGHT_RATIO = 0.88f
