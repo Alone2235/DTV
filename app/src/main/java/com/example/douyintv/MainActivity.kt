@@ -43,7 +43,8 @@ class MainActivity : Activity() {
         const val TAG = "Main"
 
         /** 网格列数：1920 宽屏下 260dp 卡片约可放 6 列，取 4 更宽松好按 */
-        const val SPAN_COUNT = 5
+        // 列数按屏宽自适应（TV 1280dp → 5 列；手机竖屏 ~411dp → 2 列）
+    private var spanCount = 5
 
         const val NAV_RECOMMEND = 0
 
@@ -427,7 +428,15 @@ class MainActivity : Activity() {
     // 网格
     // ================================================================
     private fun setupGrid() {
-        layoutManager = GridLayoutManager(this, SPAN_COUNT)
+        // ★ 手机适配：按屏宽决定列数（原先写死 5 列，在手机竖屏上卡片会小到无法点击）
+        val wDp = resources.displayMetrics.widthPixels / resources.displayMetrics.density
+        spanCount = when {
+            wDp >= 1000f -> 5     // TV / 大屏
+            wDp >= 760f -> 4
+            wDp >= 560f -> 3
+            else -> 2             // 手机竖屏
+        }
+        layoutManager = GridLayoutManager(this, spanCount)
         gridView.layoutManager = layoutManager
         adapter = VideoGridAdapter(items) { pos -> playAt(pos) }
         // 改版：焦点项 -> 信息栏
@@ -448,7 +457,7 @@ class MainActivity : Activity() {
                 val pos = parent.getChildAdapterPosition(view)
                 if (pos == androidx.recyclerview.widget.RecyclerView.NO_POSITION) return
                 val gap = (resources.displayMetrics.density * 8).toInt()
-                outRect.right = if (pos % SPAN_COUNT == SPAN_COUNT - 1) 0 else gap
+                outRect.right = if (pos % spanCount == spanCount - 1) 0 else gap
                 outRect.bottom = gap
             }
         })
