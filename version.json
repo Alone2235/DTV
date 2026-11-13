@@ -1,8 +1,8 @@
 {
-    "versionCode":  130,
-    "versionName":  "2.30",
-    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.30/Dtv-2.30-release.apk",
-    "sha256":  "784d8dc744dc8d108cedd647008bde35948d6283d6f3114fd35a38de03b953fa",
-    "notes":  "1. 画质档位进播放页菜单（切换立即生效）\n2. 修复暂停后按方向键视频划走\n3. 1080P 起步（2.28 修复继续生效）",
+    "versionCode":  131,
+    "versionName":  "2.31",
+    "apkUrl":  "https://github.com/Alone2235/DTV/releases/download/v2.31/Dtv-2.31-release.apk",
+    "sha256":  "c549224577e95ea08332b88aa5868d05dac91a201159235a519e9495a8b33e0c",
+    "notes":  "1. 卡片列数按屏宽自适应（手机竖屏 2 列）\n2. 触屏操作可用（点卡片/点侧栏/播放器单击唤栏）",
     "force":  false
 }
